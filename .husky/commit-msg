@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+message="$(cat $1)"
+requiredPattern="^PROJECTTEMPLATE-[0-9]+ .*$"
+if ! [[ $message =~ $requiredPattern ]]; then
+    echo "-"
+    echo "-"
+    echo "-"
+    echo "Сообщение коммита не соответствует формату!"
+    echo "Сообщение коммита должно соответствовать шаблону:"
+    echo "PROJECTTEMPLATE-номер_задачи сообщение"
+    echo "Пример: PROJECTTEMPLATE-123 Исправил баг в модуле X"
+    echo "-"
+    echo "Текущее сообщение комита:"
+    echo $message
+    echo "-"
+    echo "-"
+    echo "-"
+    exit 1
+fi
