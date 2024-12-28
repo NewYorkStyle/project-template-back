@@ -1,19 +1,21 @@
+import {AuthModule} from './auth/auth.module';
 import {CommonModule} from './common/common.module';
-import {Params} from './common/entities/params.entity';
 import {Module} from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
+import 'dotenv/config';
 
 @Module({
   imports: [
     CommonModule,
+    AuthModule,
     TypeOrmModule.forRoot({
-      database: 'project_template',
-      entities: [Params],
-      host: 'localhost',
-      password: 'admin',
-      port: 5432,
+      autoLoadEntities: true,
+      database: process.env.DB_NAME,
+      host: process.env.DB_HOST,
+      password: process.env.DB_PASSWORD,
+      port: Number(process.env.DB_PORT),
       type: 'postgres',
-      username: 'admin',
+      username: process.env.DB_USERNAME,
     }),
   ],
 })
