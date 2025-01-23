@@ -1,6 +1,8 @@
 import {AppModule} from './modules/app.module';
 import {NestFactory} from '@nestjs/core';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
+import 'dotenv/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,7 +18,11 @@ async function bootstrap() {
     jsonDocumentUrl: 'swagger/json',
   });
 
-  app.enableCors();
+  app.enableCors({
+    credentials: true,
+    origin: 'http://localhost:4200',
+  });
+  app.use(cookieParser());
   await app.listen(process.env.PORT ?? 3000);
 }
 
