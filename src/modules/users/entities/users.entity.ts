@@ -19,4 +19,16 @@ export class User {
 
   @Column({nullable: true, type: 'timestamp with time zone'})
   updatedAt?: Date;
+
+  @Column({type: 'varchar', unique: true})
+  email: string;
+
+  @Column({type: 'varchar'})
+  surname?: string;
+
+  @Column({type: 'varchar'})
+  name?: string;
+
+  @Column({type: 'varchar'})
+  patronymic?: string;
 }
