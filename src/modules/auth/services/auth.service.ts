@@ -1,4 +1,4 @@
-import {CreateUserDto} from '../../users/dto/create-user.dto';
+import {CreateUserDto} from '../../users/dto';
 import {UsersService} from '../../users/services/users.service';
 import {AuthDto} from '../dto/auth.dto';
 import {
@@ -28,8 +28,17 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
+    const emailExists = await this.usersService.findByEmail(
+      createUserDto.email
+    );
+
+    if (emailExists) {
+      throw new BadRequestException('Email already exists');
+    }
+
     await this.validateUsername(createUserDto.username);
     await this.validatePassword(createUserDto.password);
+    await this.validateEmail(createUserDto.email);
 
     const hash = await this.hashData(createUserDto.password);
     const newUser = await this.usersService.create({
@@ -137,6 +146,18 @@ export class AuthService {
 
     if (errors.length !== 0) {
       throw new BadRequestException(errors.join(' \n '));
+    }
+  }
+
+  async validateEmail(email: string): Promise<void> {
+    const errors: string[] = [];
+
+    if (!email) {
+      errors.push('Email is required');
+    }
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      errors.push('Wrong email');
     }
   }
 

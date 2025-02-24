@@ -1,4 +1,4 @@
-import {CreateUserDto} from '../../users/dto/create-user.dto';
+import {CreateUserDto} from '../../users/dto';
 import {AuthDto} from '../dto/auth.dto';
 import {AuthService} from '../services/auth.service';
 import {Body, Controller, Get, Post, Req, Res, UseGuards} from '@nestjs/common';
@@ -43,6 +43,7 @@ export class AuthController {
     description: 'Данные пользователя',
     schema: {
       example: {
+        email: 'email',
         password: 'password',
         username: 'username',
       },
@@ -125,10 +126,10 @@ export class AuthController {
   ): Promise<string> {
     await this.authService.logout(req.cookies['userId']);
 
-    res.clearCookie('refreshToken', httpOnlyCookieConfig);
-    res.clearCookie('accessToken', httpOnlyCookieConfig);
-    res.clearCookie('userId', httpOnlyCookieConfig);
-    res.clearCookie('isUserLoggedIn', commonCookieConfig);
+    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken');
+    res.clearCookie('userId');
+    res.clearCookie('isUserLoggedIn');
 
     return 'User logged out';
   }
