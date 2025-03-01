@@ -96,7 +96,7 @@ export class UsersController {
     description: 'Удаляет юзера.',
     schema: {
       example: 'User deleted',
-      type: 'object',
+      type: 'string',
     },
     status: 200,
   })
@@ -135,5 +135,54 @@ export class UsersController {
     res.clearCookie('isUserLoggedIn');
 
     return 'User deleted';
+  }
+
+  @ApiOperation({
+    summary: 'Запрос на генерацию OTP',
+  })
+  @ApiResponse({
+    description: 'Генерирует OTP и отправляет на почту',
+    schema: {
+      example: 'OTP sent',
+      type: 'string',
+    },
+    status: 200,
+  })
+  @Get('requestEmailVerification')
+  async requestEmailVerification(@Req() req: Request) {
+    await this.usersService.requestEmailVerification(req.cookies['userId']);
+
+    return 'OTP sent';
+  }
+
+  @ApiOperation({
+    summary: 'Проверка OTP',
+  })
+  @ApiResponse({
+    description: 'Проверяет полученный OTP',
+    schema: {
+      example: 'OTP verified',
+      type: 'string',
+    },
+    status: 200,
+  })
+  @ApiBody({
+    schema: {
+      example: {
+        otp: 'string',
+      },
+      type: 'object',
+    },
+  })
+  @Post('verifyEmail')
+  async verifyEmail(@Req() req: Request, @Body('otp') otp: string) {
+    const verified = await this.usersService.verifyEmail(
+      req.cookies['userId'],
+      otp
+    );
+
+    if (!verified) throw new BadRequestException('OTP is incorrect');
+
+    return 'OTP verified';
   }
 }
