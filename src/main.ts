@@ -10,7 +10,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Project template back')
     .setDescription('API для project template')
-    .setVersion('1.0')
+    .setVersion(process.env.npm_package_version)
     .addTag('project-template')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
