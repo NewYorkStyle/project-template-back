@@ -9,7 +9,7 @@
     "start": "nest start",
     "dev": "nest start --watch",
     "dev:debug": "nest start --debug --watch",
-    "prod": "node dist/main",
+    "prod": "node dist/src/main",
     "prettier:check": "prettier --check \"**/*.{ts,js,md,mdx,yaml}\"",
     "prettier:format": "prettier --write \"**/*.{ts,js,md,mdx,yaml}\"",
     "migrate": "ts-node db_migration/migrate.ts"

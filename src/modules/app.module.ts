@@ -15,7 +15,7 @@ import 'dotenv/config';
       password: process.env.DB_PASSWORD,
       port: Number(process.env.DB_PORT),
       type: 'postgres',
-      username: process.env.DB_USERNAME,
+      username: process.env.DB_USERNAME
     }),
   ],
 })
