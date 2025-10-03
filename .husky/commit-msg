@@ -2,18 +2,36 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 message="$(cat $1)"
-requiredPattern="^PROJECTTEMPLATE-[0-9]+ .*$"
-if ! [[ $message =~ $requiredPattern ]]; then
+
+# Проверяем комбинированный формат: conventional + PROJECTTEMPLATE
+combinedPattern="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?(!)?: PROJECTTEMPLATE-[0-9]+ .+$"
+
+if [[ $message =~ $combinedPattern ]]; then
+    echo "✅ Combined conventional + PROJECTTEMPLATE format detected"
+    exit 0
+else
     echo "-"
     echo "-"
     echo "-"
-    echo "Сообщение коммита не соответствует формату!"
-    echo "Сообщение коммита должно соответствовать шаблону:"
-    echo "PROJECTTEMPLATE-номер_задачи сообщение"
-    echo "Пример: PROJECTTEMPLATE-123 Исправил баг в модуле X"
-    echo "-"
-    echo "Текущее сообщение комита:"
-    echo $message
+    echo "❌ Сообщение коммита не соответствует формату!"
+    echo ""
+    echo "Требуемый формат:"
+    echo ""
+    echo "feat: PROJECTTEMPLATE-123 добавить новую функцию"
+    echo "fix: PROJECTTEMPLATE-456 исправить баг"
+    echo "feat!: PROJECTTEMPLATE-789 breaking change"
+    echo "feat(scope): PROJECTTEMPLATE-101 добавить функцию в область"
+    echo "docs: PROJECTTEMPLATE-202 обновить документацию"
+    echo "style: PROJECTTEMPLATE-303 исправить форматирование"
+    echo "refactor: PROJECTTEMPLATE-404 рефакторинг кода"
+    echo "perf: PROJECTTEMPLATE-505 улучшить производительность"
+    echo "test: PROJECTTEMPLATE-606 добавить тесты"
+    echo "build: PROJECTTEMPLATE-707 обновить build систему"
+    echo "ci: PROJECTTEMPLATE-808 обновить CI/CD"
+    echo "chore: PROJECTTEMPLATE-909 обновить зависимости"
+    echo ""
+    echo "Текущее сообщение коммита:"
+    echo "$message"
     echo "-"
     echo "-"
     echo "-"
