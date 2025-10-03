@@ -1,6 +1,6 @@
 {
   "name": "project-template-back",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "New York Style",
   "private": true,
   "license": "MIT",
@@ -66,6 +66,7 @@
     "@typescript-eslint/parser": "8.0.0",
     "commitizen": "4.3.1",
     "cz-conventional-changelog": "3.3.0",
+    "conventional-changelog-conventionalcommits": "9.1.0",
     "eslint": "9.8.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-import-resolver-typescript": "3.6.3",
