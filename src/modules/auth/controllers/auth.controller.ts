@@ -1,10 +1,10 @@
+import {AccessTokenGuard, RefreshTokenGuard} from '../../../common';
 import {CreateUserDto} from '../../users/dto';
 import {AuthDto} from '../dto/auth.dto';
 import {AuthService} from '../services/auth.service';
 import {Body, Controller, Get, Post, Req, Res, UseGuards} from '@nestjs/common';
 import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {CookieOptions, Request, Response} from 'express';
-import {AccessTokenGuard, RefreshTokenGuard} from 'src/common';
 
 const httpOnlyCookieConfig: CookieOptions = {
   httpOnly: true,
@@ -22,7 +22,7 @@ const commonCookieConfig: CookieOptions = {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signUp')
   @ApiOperation({

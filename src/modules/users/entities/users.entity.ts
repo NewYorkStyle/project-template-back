@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryGeneratedColumn} from 'typeorm';
+import {User_Permissions} from '../../permissions/entities/user-premissions.entity';
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from 'typeorm';
 
 @Entity({name: 'users'})
 export class User {
@@ -31,4 +32,7 @@ export class User {
 
   @Column({type: 'varchar'})
   patronymic?: string;
+
+  @OneToMany(() => User_Permissions, (userPermission) => userPermission.user)
+  userPermissions: User_Permissions[];
 }
