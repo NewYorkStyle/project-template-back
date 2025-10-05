@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.0.0...v1.1.0) (2025-10-05)
+
+### Features
+
+* PROJECTTEMPLATE-23 Добавить верификацию через email ([#8](https://github.com/NewYorkStyle/project-template-back/issues/8)) ([296962a](https://github.com/NewYorkStyle/project-template-back/commit/296962a3bb70fbead67389460779f93ebd91e63f))
+
 ## 1.0.0 (2025-10-03)
 
 ### Features
