@@ -88,13 +88,70 @@ export class UsersService {
       E_OTP_PURPOSE.EMAIL_VERIFICATION
     );
 
-    if (verified) {
+    if (verified.valid) {
       this.permissionsService.addPermissionToUser(
         userId,
         E_PERMISSIONS.EMAIL_VERIFIED
       );
 
-      return verified;
+      return true;
     }
+
+    return false;
+  }
+
+  async emailChangeRequest(userId: string, newEmail: string): Promise<void> {
+    const user = await this.findById(userId);
+
+    const existingUser = await this.findByEmail(newEmail);
+    if (existingUser && existingUser.id !== userId) {
+      throw new BadRequestException('Email is already in use by another user');
+    }
+
+    if (user.email === newEmail) {
+      throw new BadRequestException(
+        'New email must be different from current email'
+      );
+    }
+
+    const otp = await this.otpService.generateOtp(
+      userId,
+      E_OTP_PURPOSE.EMAIL_CHANGE,
+      {newEmail}
+    );
+
+    await this.mailService.sendOtp(
+      {...user, email: newEmail},
+      otp,
+      'Confirm your Email Change'
+    );
+  }
+
+  async emailChange(userId: string, otp: string): Promise<boolean> {
+    const verified = await this.otpService.verifyOtp(
+      userId,
+      otp,
+      E_OTP_PURPOSE.EMAIL_CHANGE
+    );
+
+    if (verified && verified.metadata && verified.metadata.newEmail) {
+      const newEmail = verified.metadata.newEmail;
+
+      const existingUser = await this.findByEmail(newEmail);
+      if (existingUser && existingUser.id !== userId) {
+        throw new BadRequestException(
+          'Email is already in use by another user'
+        );
+      }
+
+      const user = await this.findById(userId);
+      user.email = newEmail;
+      user.updatedAt = new Date();
+      await this.userRepository.save(user);
+
+      return true;
+    }
+
+    return false;
   }
 }
