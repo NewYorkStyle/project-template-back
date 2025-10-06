@@ -74,7 +74,6 @@ export class UsersController {
     description: 'Поля для изменения',
     schema: {
       example: {
-        email: 'string',
         name: 'string',
         patronymic: 'string',
         surname: 'string',
@@ -87,7 +86,6 @@ export class UsersController {
     return this.usersService
       .update(req.cookies['userId'], updateUserDto)
       .then((profile) => ({
-        email: profile.email,
         name: profile.name,
         patronymic: profile.patronymic,
         surname: profile.surname,
@@ -189,6 +187,72 @@ export class UsersController {
     if (!verified) throw new BadRequestException('OTP is incorrect');
 
     return 'OTP verified';
+  }
+
+  @ApiOperation({
+    summary: 'Запрос на смену email',
+  })
+  @ApiResponse({
+    description: 'Генерирует OTP для смены email и отправляет на новую почту',
+    schema: {
+      example: 'OTP for email change sent',
+      type: 'string',
+    },
+    status: 200,
+  })
+  @ApiBody({
+    description: 'Новый email адрес',
+    schema: {
+      example: {
+        newEmail: 'newemail@example.com',
+      },
+      type: 'object',
+    },
+  })
+  @Post('emailChangeRequest')
+  async emailChangeRequest(
+    @Req() req: Request,
+    @Body('newEmail') newEmail: string
+  ) {
+    if (!newEmail) {
+      throw new BadRequestException('New email is required');
+    }
+
+    await this.usersService.emailChangeRequest(req.cookies['userId'], newEmail);
+
+    return 'OTP for email change sent';
+  }
+
+  @ApiOperation({
+    summary: 'Подтверждение смены email',
+  })
+  @ApiResponse({
+    description: 'Проверяет OTP и изменяет email пользователя',
+    schema: {
+      example: 'Email successfully changed',
+      type: 'string',
+    },
+    status: 200,
+  })
+  @ApiBody({
+    description: 'OTP для подтверждения смены email',
+    schema: {
+      example: {
+        otp: 'string',
+      },
+      type: 'object',
+    },
+  })
+  @Post('emailChange')
+  async emailChange(@Req() req: Request, @Body('otp') otp: string) {
+    const changed = await this.usersService.emailChange(
+      req.cookies['userId'],
+      otp
+    );
+
+    if (!changed) throw new BadRequestException('OTP is incorrect or expired');
+
+    return 'Email successfully changed';
   }
 
   @ApiOperation({

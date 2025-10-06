@@ -14,6 +14,9 @@ export class Otp {
   @Column()
   purpose: string;
 
+  @Column()
+  metadata: string;
+
   @Column({type: 'timestamp with time zone'})
   createdAt: Date;
 
