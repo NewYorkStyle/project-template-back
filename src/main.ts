@@ -22,7 +22,9 @@ async function bootstrap() {
     credentials: true,
     origin: process.env.FRONT_URL,
   });
+
   app.use(cookieParser());
+
   await app.listen(process.env.PORT ?? 3000);
 }
 

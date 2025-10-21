@@ -10,13 +10,13 @@ const httpOnlyCookieConfig: CookieOptions = {
   httpOnly: true,
   maxAge: 30 * 24 * 60 * 60 * 1000,
   sameSite: 'strict',
-  secure: true,
+  secure: false,
 };
 
 const commonCookieConfig: CookieOptions = {
   maxAge: 30 * 24 * 60 * 60 * 1000,
   sameSite: 'strict',
-  secure: true,
+  secure: false,
 };
 
 @ApiTags('auth')

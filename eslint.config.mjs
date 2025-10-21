@@ -33,7 +33,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         project: 'tsconfig.json',
-        tsconfigRootDir: 'E:\\Projects\\project-template-back',
+        tsconfigRootDir: __dirname,
       },
 
       sourceType: 'module',
