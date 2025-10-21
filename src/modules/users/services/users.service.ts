@@ -57,6 +57,24 @@ export class UsersService {
     }
   }
 
+  // В UsersService
+  async clearRefreshToken(userId: string): Promise<void> {
+    try {
+      const result = await this.userRepository.update(
+        {id: userId},
+        {refreshToken: null, updatedAt: new Date()}
+      );
+
+      // Если ни одна запись не обновлена - пользователь не существует
+      if (result.affected === 0) {
+        console.log(`User ${userId} not found for token clearance`);
+      }
+    } catch (error) {
+      console.log('Error clearing refresh token:', error);
+      // Не бросаем исключение - это нормально для logout
+    }
+  }
+
   async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
   }

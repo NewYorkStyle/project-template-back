@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    await this.usersService.update(userId, {refreshToken: null});
+    await this.usersService.clearRefreshToken(userId);
   }
 
   async refreshTokens(
