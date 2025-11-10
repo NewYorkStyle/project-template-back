@@ -1,5 +1,6 @@
 import {AuthModule} from './auth/auth.module';
 import {CommonModule} from './common/common.module';
+import {HealthModule} from './health/health.module';
 import {UsersModule} from './users/users.module';
 import {Module} from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
@@ -7,6 +8,7 @@ import 'dotenv/config';
 
 @Module({
   imports: [
+    HealthModule,
     CommonModule,
     AuthModule,
     UsersModule,
