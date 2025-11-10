@@ -1,8 +1,14 @@
 /* eslint-disable no-console */
 import {readFileSync, readdirSync} from 'fs';
-import {join} from 'path';
-import {Client} from 'pg';
+import {dirname, join} from 'path';
+import {fileURLToPath} from 'url';
+import pg from 'pg';
 import 'dotenv/config';
+
+const {Client} = pg;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const client = new Client({
   database: process.env.DB_NAME,
@@ -14,8 +20,12 @@ const client = new Client({
 
 const migrationDirectory = join(__dirname, './migrations');
 
-// Создаем таблицу для отслеживания миграций
-async function createMigrationsTable(): Promise<void> {
+/**
+ * Создаем таблицу для отслеживания миграций
+ *
+ * @returns {Promise<void>}
+ */
+async function createMigrationsTable() {
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS migrations (
       id SERIAL PRIMARY KEY,
@@ -26,8 +36,13 @@ async function createMigrationsTable(): Promise<void> {
   await client.query(createTableQuery);
 }
 
-// Проверяем, была ли миграция уже выполнена
-async function isMigrationExecuted(migrationName: string): Promise<boolean> {
+/**
+ * Проверяем, была ли миграция уже выполнена
+ *
+ * @param {string} migrationName
+ * @returns {Promise<boolean>}
+ */
+async function isMigrationExecuted(migrationName) {
   const result = await client.query(
     'SELECT 1 FROM migrations WHERE name = $1',
     [migrationName]
@@ -35,14 +50,19 @@ async function isMigrationExecuted(migrationName: string): Promise<boolean> {
   return result.rows.length > 0;
 }
 
-// Добавляем запись о выполненной миграции
-async function markMigrationAsExecuted(migrationName: string): Promise<void> {
+/**
+ * Добавляем запись о выполненной миграции
+ *
+ * @param {string} migrationName
+ * @returns {Promise<void>}
+ */
+async function markMigrationAsExecuted(migrationName) {
   await client.query('INSERT INTO migrations (name) VALUES ($1)', [
     migrationName,
   ]);
 }
 
-async function runMigrations(): Promise<void> {
+async function runMigrations() {
   try {
     await client.connect();
 
@@ -50,7 +70,7 @@ async function runMigrations(): Promise<void> {
     await createMigrationsTable();
 
     const files = readdirSync(migrationDirectory)
-      .filter((file: string) => file.endsWith('.sql'))
+      .filter((file) => file.endsWith('.sql'))
       .sort();
 
     let executedCount = 0;
@@ -78,7 +98,7 @@ async function runMigrations(): Promise<void> {
 
         console.log(`Migration ${file} completed successfully.`);
         executedCount++;
-      } catch (error: any) {
+      } catch (error) {
         await client.query('ROLLBACK'); // Откатываем при ошибке
         console.error(`Error running migration ${file}:`, error);
         process.exit(1);
@@ -88,7 +108,7 @@ async function runMigrations(): Promise<void> {
     console.log(
       `\n✅ Migrations completed. Executed ${executedCount} new migrations, skipped ${skippedCount} already executed.`
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error running migrations:', error);
     process.exit(1);
   } finally {
