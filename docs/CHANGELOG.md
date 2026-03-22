@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.2.2...v1.3.0) (2026-03-22)
+
+### Features
+
+* PROJECTTEMPLATE-54 Миграция с TypeORM на prisma ([#12](https://github.com/NewYorkStyle/project-template-back/issues/12)) ([6f5cf15](https://github.com/NewYorkStyle/project-template-back/commit/6f5cf152db5518e8573e675f414fb148a5e3c0eb))
+
 ## [1.2.2](https://github.com/NewYorkStyle/project-template-back/compare/v1.2.1...v1.2.2) (2025-11-10)
 
 ## [1.2.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.2.0...v1.2.1) (2025-10-21)
