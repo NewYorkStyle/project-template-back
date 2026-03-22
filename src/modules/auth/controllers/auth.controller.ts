@@ -1,10 +1,11 @@
-import {AccessTokenGuard, RefreshTokenGuard} from '../../../common';
+import {Body, Controller, Get, Post, Req, Res, UseGuards} from '@nestjs/common';
+import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+import {CookieOptions, Response} from 'express';
+
+import {AccessTokenGuard, RefreshTokenGuard, TRequest} from '../../../common';
 import {CreateUserDto} from '../../users/dto';
 import {AuthDto} from '../dto/auth.dto';
 import {AuthService} from '../services/auth.service';
-import {Body, Controller, Get, Post, Req, Res, UseGuards} from '@nestjs/common';
-import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
-import {CookieOptions, Request, Response} from 'express';
 
 const httpOnlyCookieConfig: CookieOptions = {
   httpOnly: true,
@@ -121,10 +122,10 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @Get('logout')
   async logout(
-    @Req() req: Request,
+    @Req() req: TRequest,
     @Res({passthrough: true}) res: Response
   ): Promise<string> {
-    await this.authService.logout(req.cookies['userId']);
+    await this.authService.logout(req.cookies.userId);
 
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
@@ -151,11 +152,11 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   async refreshTokens(
-    @Req() req: Request,
+    @Req() req: TRequest,
     @Res({passthrough: true}) res: Response
   ): Promise<string> {
-    const userId = req.cookies['userId'];
-    const refreshToken = req.cookies['refreshToken'];
+    const userId = req.cookies.userId;
+    const refreshToken = req.cookies.refreshToken;
     const {accessToken, refreshToken: newRefreshToken} =
       await this.authService.refreshTokens(userId, refreshToken);
 

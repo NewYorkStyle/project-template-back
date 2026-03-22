@@ -1,32 +1,30 @@
-import {Otp} from '../entities/otp.entity';
 import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
 import {Cron, CronExpression} from '@nestjs/schedule';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+
+import {PrismaService} from '../../../common/prisma/prisma.service';
 
 @Injectable()
 export class OtpCleanupService implements OnModuleInit {
   private readonly logger = new Logger(OtpCleanupService.name);
 
-  constructor(
-    @InjectRepository(Otp)
-    private readonly otpRepository: Repository<Otp>
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @Cron(CronExpression.EVERY_30_MINUTES)
   async cleanupExpiredOtps() {
     this.logger.log('Running cleanupExpiredOtps...');
 
-    const result = await this.otpRepository
-      .createQueryBuilder()
-      .delete()
-      .where('expiresAt < :now', {now: new Date()})
-      .execute();
+    const result = await this.prisma.otp.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
 
-    this.logger.log(`Deleted ${result.affected} expired OTPs.`);
+    this.logger.log(`Deleted ${result.count} expired OTPs.`);
   }
 
   onModuleInit() {
-    this.cleanupExpiredOtps();
+    void this.cleanupExpiredOtps();
   }
 }

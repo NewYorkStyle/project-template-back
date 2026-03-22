@@ -1,7 +1,8 @@
-import {MailService} from './services/mail.service';
 import {Global, Module} from '@nestjs/common';
 import {MailerModule} from '@nestjs-modules/mailer';
 import {HandlebarsAdapter} from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+
+import {MailService} from './services/mail.service';
 import 'dotenv/config';
 
 @Global()
@@ -9,7 +10,7 @@ import 'dotenv/config';
   exports: [MailService],
   imports: [
     MailerModule.forRootAsync({
-      useFactory: async () => ({
+      useFactory: () => ({
         defaults: {
           from: `"No Reply" <${process.env.MAIL_FROM}>`,
         },

@@ -1,52 +1,48 @@
-import {E_OTP_PURPOSE} from '../contants';
-import {Otp} from '../entities/otp.entity';
 import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
 
-type TOtpVerificationResult = {
+import {PrismaService} from '../../../common/prisma/prisma.service';
+import {E_OTP_PURPOSE} from '../constants';
+
+type TOtpVerificationResult<TMetadata = unknown> = {
   valid: boolean;
-  metadata?: any;
+  metadata?: TMetadata;
 };
 
 @Injectable()
 export class OtpService {
-  constructor(
-    @InjectRepository(Otp)
-    private readonly otpRepository: Repository<Otp>
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async generateOtp(
+  async generateOtp<TMetadata = unknown>(
     userId: string,
     purpose: E_OTP_PURPOSE,
-    metadata?: any
+    metadata?: TMetadata
   ): Promise<string> {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Генерация 6-значного OTP
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Текущее время + 5 минут
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await this.otpRepository.save({
-      expiresAt,
-      metadata: metadata ? JSON.stringify(metadata) : null,
-      otp,
-      purpose,
-      userId,
+    await this.prisma.otp.create({
+      data: {
+        userId,
+        purpose,
+        otp,
+        metadata: metadata ? JSON.stringify(metadata) : null,
+      },
     });
 
     return otp;
   }
 
-  async verifyOtp(
+  async verifyOtp<TMetadata = unknown>(
     userId: string,
     otp: string,
     purpose: E_OTP_PURPOSE
-  ): Promise<TOtpVerificationResult> {
-    const verification = await this.otpRepository.findOne({
-      order: {createdAt: 'DESC'},
-      where: {otp, purpose, userId},
+  ): Promise<TOtpVerificationResult<TMetadata>> {
+    const verification = await this.prisma.otp.findFirst({
+      where: {userId, otp, purpose},
+      orderBy: {createdAt: 'desc'},
     });
 
     if (!verification) {
@@ -57,31 +53,33 @@ export class OtpService {
       throw new UnauthorizedException('OTP has expired');
     }
 
-    // Парсим метаданные если они есть
-    let metadata = null;
+    let parsedMetadata: unknown = undefined;
+
     if (verification.metadata) {
       try {
-        metadata = JSON.parse(verification.metadata);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+        parsedMetadata = JSON.parse(verification.metadata);
+      } catch {
         throw new Error('Failed to parse OTP metadata');
       }
     }
 
-    // Удаляем OTP после успешной проверки
-    await this.otpRepository.delete(verification.otpId);
+    await this.prisma.otp.delete({
+      where: {otpId: verification.otpId},
+    });
 
     return {
-      metadata,
       valid: true,
+      metadata: parsedMetadata as TMetadata,
     };
   }
 
   async cleanupExpiredOtps(): Promise<void> {
-    await this.otpRepository
-      .createQueryBuilder()
-      .delete()
-      .where('expiresAt < :now', {now: new Date()})
-      .execute();
+    await this.prisma.otp.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
   }
 }

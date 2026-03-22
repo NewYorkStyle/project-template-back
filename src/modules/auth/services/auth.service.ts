@@ -1,6 +1,3 @@
-import {CreateUserDto} from '../../users/dto';
-import {UsersService} from '../../users/services/users.service';
-import {AuthDto} from '../dto/auth.dto';
 import {
   BadRequestException,
   ForbiddenException,
@@ -8,6 +5,10 @@ import {
 } from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+
+import {CreateUserDto} from '../../users/dto';
+import {UsersService} from '../../users/services/users.service';
+import {AuthDto} from '../dto/auth.dto';
 import 'dotenv/config';
 
 @Injectable()
@@ -36,9 +37,9 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
-    await this.validateUsername(createUserDto.username);
-    await this.validatePassword(createUserDto.password);
-    await this.validateEmail(createUserDto.email);
+    this.validateUsername(createUserDto.username);
+    this.validatePassword(createUserDto.password);
+    this.validateEmail(createUserDto.email);
 
     const hash = await this.hashData(createUserDto.password);
     const newUser = await this.usersService.create({
@@ -99,7 +100,7 @@ export class AuthService {
     return argon2.hash(data);
   }
 
-  async validatePassword(password: string): Promise<void> {
+  validatePassword(password: string): void {
     const errors: string[] = [];
 
     if (!password) {
@@ -127,7 +128,7 @@ export class AuthService {
     }
   }
 
-  async validateUsername(username: string): Promise<void> {
+  validateUsername(username: string): void {
     const errors: string[] = [];
 
     if (!username) {
@@ -149,7 +150,7 @@ export class AuthService {
     }
   }
 
-  async validateEmail(email: string): Promise<void> {
+  validateEmail(email: string): void {
     const errors: string[] = [];
 
     if (!email) {

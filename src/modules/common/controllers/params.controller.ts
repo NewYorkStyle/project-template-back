@@ -1,13 +1,13 @@
-import {BASE_URL} from '../contants';
-import {Params} from '../entities/params.entity';
-import {ParamsService} from '../services/params.service';
 import {Controller, Get} from '@nestjs/common';
 import {ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+
+import {BASE_URL} from '../constants';
+import {ParamsService} from '../services/params.service';
 
 @ApiTags('params')
 @Controller(`${BASE_URL}/params`)
 export class ParamsController {
-  constructor(private readonly paramsServise: ParamsService) {}
+  constructor(private readonly paramsService: ParamsService) {}
 
   @Get('getParams')
   @ApiOperation({
@@ -24,14 +24,9 @@ export class ParamsController {
     },
     status: 200,
   })
-  getParams(): Promise<{[name: string]: string}> {
-    return this.paramsServise.getParams().then((params) => {
-      const result = params.reduce((acc, item: Params) => {
-        acc[item.name] = item.value;
-        return acc;
-      }, {});
+  async getParams(): Promise<Record<string, string>> {
+    const params = await this.paramsService.getParams();
 
-      return result;
-    });
+    return Object.fromEntries(params.map((item) => [item.name, item.value]));
   }
 }

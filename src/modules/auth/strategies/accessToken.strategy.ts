@@ -1,10 +1,12 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {PassportStrategy} from '@nestjs/passport';
-import {Request} from 'express';
 import {ExtractJwt, Strategy} from 'passport-jwt';
+
+import {TRequest} from '../../../common';
+
 import 'dotenv/config';
 
-type JwtPayload = {
+type TJwtPayload = {
   sub: string;
   username: string;
 };
@@ -14,8 +16,8 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          const accessToken = request.cookies['accessToken'];
+        (request: TRequest) => {
+          const accessToken = request.cookies.accessToken;
 
           if (!accessToken) {
             return null;
@@ -28,7 +30,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  validate(payload: JwtPayload) {
+  validate(payload: TJwtPayload) {
     if (!payload) {
       throw new UnauthorizedException();
     }

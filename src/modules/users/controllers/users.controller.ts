@@ -1,8 +1,3 @@
-import {AccessTokenGuard} from '../../../common/guards/accessToken.guard';
-import {Permissions} from '../../permissions/entities/permissions.entity';
-import {PermissionsService} from '../../permissions/services/permissions.service';
-import {DeleteUserDto, UpdateUserDto} from '../dto';
-import {UsersService} from '../services/users.service';
 import {
   BadRequestException,
   Body,
@@ -14,8 +9,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+import {Permission} from '@prisma/client';
 import * as argon2 from 'argon2';
-import {Request, Response} from 'express';
+import {Response} from 'express';
+
+import {AccessTokenGuard, TRequest} from '../../../common';
+import {PermissionDto} from '../../permissions/dto/permission.dto';
+import {PermissionsService} from '../../permissions/services/permissions.service';
+import {DeleteUserDto, UpdateUserDto} from '../dto';
+import {UsersService} from '../services/users.service';
 
 @ApiTags('users')
 @Controller('users')
@@ -43,15 +45,13 @@ export class UsersController {
     status: 200,
   })
   @Get('getProfile')
-  async findById(@Req() req: Request) {
-    return this.usersService
-      .findById(req.cookies['userId'])
-      .then((profile) => ({
-        email: profile.email,
-        name: profile.name,
-        patronymic: profile.patronymic,
-        surname: profile.surname,
-      }));
+  async findById(@Req() req: TRequest) {
+    return this.usersService.findById(req.cookies.userId).then((profile) => ({
+      email: profile.email,
+      name: profile.name,
+      patronymic: profile.patronymic,
+      surname: profile.surname,
+    }));
   }
 
   @ApiOperation({
@@ -82,9 +82,9 @@ export class UsersController {
     },
   })
   @Post('update')
-  update(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
+  update(@Req() req: TRequest, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService
-      .update(req.cookies['userId'], updateUserDto)
+      .update(req.cookies.userId, updateUserDto)
       .then((profile) => ({
         name: profile.name,
         patronymic: profile.patronymic,
@@ -114,11 +114,11 @@ export class UsersController {
   })
   @Post('delete')
   async remove(
-    @Req() req: Request,
+    @Req() req: TRequest,
     @Res({passthrough: true}) res: Response,
     @Body() deleteUserDto: DeleteUserDto
   ) {
-    const user = await this.usersService.findById(req.cookies['userId']);
+    const user = await this.usersService.findById(req.cookies.userId);
 
     if (!user) throw new BadRequestException('User does not exist');
 
@@ -130,7 +130,7 @@ export class UsersController {
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
 
-    this.usersService.remove(req.cookies['userId']);
+    await this.usersService.remove(req.cookies.userId);
 
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
@@ -152,8 +152,8 @@ export class UsersController {
     status: 200,
   })
   @Get('requestEmailVerification')
-  async requestEmailVerification(@Req() req: Request) {
-    await this.usersService.requestEmailVerification(req.cookies['userId']);
+  async requestEmailVerification(@Req() req: TRequest) {
+    await this.usersService.requestEmailVerification(req.cookies.userId);
 
     return 'OTP sent';
   }
@@ -178,9 +178,9 @@ export class UsersController {
     },
   })
   @Post('verifyEmail')
-  async verifyEmail(@Req() req: Request, @Body('otp') otp: string) {
+  async verifyEmail(@Req() req: TRequest, @Body('otp') otp: string) {
     const verified = await this.usersService.verifyEmail(
-      req.cookies['userId'],
+      req.cookies.userId,
       otp
     );
 
@@ -211,14 +211,14 @@ export class UsersController {
   })
   @Post('emailChangeRequest')
   async emailChangeRequest(
-    @Req() req: Request,
+    @Req() req: TRequest,
     @Body('newEmail') newEmail: string
   ) {
     if (!newEmail) {
       throw new BadRequestException('New email is required');
     }
 
-    await this.usersService.emailChangeRequest(req.cookies['userId'], newEmail);
+    await this.usersService.emailChangeRequest(req.cookies.userId, newEmail);
 
     return 'OTP for email change sent';
   }
@@ -244,9 +244,9 @@ export class UsersController {
     },
   })
   @Post('emailChange')
-  async emailChange(@Req() req: Request, @Body('otp') otp: string) {
+  async emailChange(@Req() req: TRequest, @Body('otp') otp: string) {
     const changed = await this.usersService.emailChange(
-      req.cookies['userId'],
+      req.cookies.userId,
       otp
     );
 
@@ -261,10 +261,10 @@ export class UsersController {
   @ApiResponse({
     description: 'Возвращает список permissions текущего пользователя.',
     status: 200,
-    type: [Permissions],
+    type: [PermissionDto],
   })
   @Get('permissions')
-  async getMyPermissions(@Req() req: Request): Promise<Permissions['name'][]> {
-    return this.permissionsService.getUserPermissions(req.cookies['userId']);
+  async getMyPermissions(@Req() req: TRequest): Promise<Permission['name'][]> {
+    return this.permissionsService.getUserPermissions(req.cookies.userId);
   }
 }
