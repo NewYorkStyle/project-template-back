@@ -1,76 +1,171 @@
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {FlatCompat} from '@eslint/eslintrc';
 import js from '@eslint/js';
-import typescriptEslintEslintPlugin from '@typescript-eslint/eslint-plugin';
+import typescript from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import * as importPlugin from 'eslint-plugin-import';
-import sortDestructureKeys from 'eslint-plugin-sort-destructure-keys';
-import sortKeysFix from 'eslint-plugin-sort-keys-fix';
+import prettier from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  allConfig: js.configs.all,
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
-
-export default [
+export default tseslint.config(
+  /**
+   * Глобальные игноры
+   */
   {
-    ignores: ['**/.eslintrc.js'],
+    ignores: [
+      '**/dist/**',
+      '**/build/**',
+      '**/node_modules/**',
+      '**/*.config.js',
+      '**/*.d.ts',
+      '**/coverage/**',
+      'coverage/**',
+      '**/tools/**',
+      'projectStructure.cache.json',
+    ],
   },
-  ...compat.extends('plugin:@typescript-eslint/recommended'),
-  {
-    languageOptions: {
-      ecmaVersion: 5,
 
-      globals: {
-        ...globals.node,
-        ...globals.jest,
-      },
+  /**
+   * Основной конфиг
+   */
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.ts', '**/*.js'],
+    languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: 'tsconfig.json',
-        tsconfigRootDir: __dirname,
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.json',
       },
-
-      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        ...globals.es2021,
+      },
     },
-
     plugins: {
-      '@typescript-eslint': typescriptEslintEslintPlugin,
+      '@typescript-eslint': typescript,
       import: importPlugin,
-      'sort-destructure-keys': sortDestructureKeys,
-      'sort-keys-fix': sortKeysFix,
+      prettier: prettierPlugin,
     },
-
+    settings: {
+      'import/resolver': {
+        typescript: {
+          project: './tsconfig.json',
+        },
+      },
+    },
     rules: {
-      '@typescript-eslint/ban-ts-comment': 'warn',
+      ...typescript.configs['recommended-requiring-type-checking'].rules,
+
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/interface-name-prefix': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'inline-type-imports',
+        },
+      ],
+
+      // 🔧 Backend-friendly
+      'no-console': 'off',
+      'no-multiple-empty-lines': 'warn',
+      'no-trailing-spaces': 'warn',
+      'max-lines': ['error', 1000],
+
+      // 📦 Импорты
       'import/order': [
         'warn',
         {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+          ],
+          'newlines-between': 'always',
           alphabetize: {
             order: 'asc',
+            caseInsensitive: true,
           },
-
-          groups: ['builtin', ['sibling', 'parent'], 'index', 'object'],
-
-          named: true,
         },
       ],
-      'max-lines': ['error', 1015],
-      'no-console': ['warn'],
-      'no-multiple-empty-lines': 'warn',
-      'no-trailing-spaces': 'warn',
 
-      'sort-destructure-keys/sort-destructure-keys': 2,
-      'sort-keys-fix/sort-keys-fix': 'warn',
+      // 🧠 Naming
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'typeAlias',
+          format: ['PascalCase'],
+          prefix: ['T'],
+        },
+        {
+          selector: 'enum',
+          format: ['UPPER_CASE'],
+          prefix: ['E_'],
+        },
+        {
+          selector: 'class',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'variable',
+          format: ['camelCase', 'UPPER_CASE'],
+          leadingUnderscore: 'allow',
+        },
+        {
+          selector: 'function',
+          format: ['camelCase'],
+        },
+      ],
+
+      'prettier/prettier': 'error',
     },
   },
-];
+
+  /**
+   * Конфиги (Nest, scripts, etc)
+   */
+  {
+    files: ['**/*.config.*'],
+    rules: {
+      '@typescript-eslint/no-var-requires': 'off',
+      'prettier/prettier': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+    },
+  },
+
+  /**
+   * Тесты
+   */
+  {
+    files: ['**/*.test.*', '**/*.spec.*'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+
+  /**
+   * Prettier должен быть последним
+   */
+  prettier
+);

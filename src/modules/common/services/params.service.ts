@@ -1,18 +1,17 @@
-import {Params} from '../entities/params.entity';
 import {Injectable} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+
+import {PrismaService} from '../../../common/prisma/prisma.service';
 
 @Injectable()
 export class ParamsService {
-  constructor(
-    @InjectRepository(Params)
-    private readonly paramsRepository: Repository<Params>
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  getParams(): Promise<Params[]> {
-    return this.paramsRepository.find({
-      select: {name: true, value: true},
+  getParams() {
+    return this.prisma.param.findMany({
+      select: {
+        name: true,
+        value: true,
+      },
     });
   }
 }

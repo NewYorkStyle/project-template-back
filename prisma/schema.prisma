@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Otp {
+  otpId     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @db.Uuid
+  otp       String   @db.VarChar(6)
+  purpose   String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  expiresAt DateTime @default(dbgenerated("(now() + '00:05:00'::interval)")) @db.Timestamp(6)
+  metadata  String?  @db.VarChar
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@map("otp")
+}
+
+model Param {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String @unique @db.VarChar
+  value       String @db.VarChar
+  description String @db.VarChar
+
+  @@map("params")
+}
+
+model Permission {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String            @unique @db.VarChar
+  description     String            @db.VarChar
+
+  userPermissions UserPermission[]
+
+  @@map("permissions")
+}
+
+model UserPermission {
+  userId       String @db.Uuid
+  permissionId String @db.Uuid
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, permissionId])
+  @@index([permissionId])
+  @@index([userId])
+  @@map("user_permissions")
+}
+
+model User {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username        String            @unique @db.VarChar
+  password        String            @db.VarChar
+  refreshToken    String?           @db.VarChar
+  createdAt       DateTime?         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime?         @db.Timestamptz(6)
+  email           String            @unique @default("email@mock.test") @db.VarChar
+  surname         String?           @db.VarChar
+  name            String?           @db.VarChar
+  patronymic      String?           @db.VarChar
+
+  otp             Otp[]
+  userPermissions UserPermission[]
+
+  @@map("users")
+}

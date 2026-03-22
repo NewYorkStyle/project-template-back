@@ -7,12 +7,16 @@
   "scripts": {
     "build": "nest build",
     "start": "nest start",
-    "dev": "nest start --watch",
-    "dev:debug": "nest start --debug --watch",
+    "dev": "npm run prisma:generate && nest start --watch",
+    "dev:debug": "npm run prisma:generate && nest start --debug --watch",
     "prod": "node dist/src/main",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
     "prettier:check": "prettier --check \"**/*.{ts,js,md,mdx,yaml}\"",
     "prettier:format": "prettier --write \"**/*.{ts,js,md,mdx,yaml}\"",
-    "migrate": "node db_migration/migrate.mjs",
     "semantic-release": "semantic-release",
     "semantic-release:dry-run": "semantic-release --dry-run",
     "codestyle:check": "npm run prettier:check && npm run lint"
@@ -39,7 +43,8 @@
     "@nestjs/schedule": "5.0.1",
     "@nestjs/swagger": "8.1.0",
     "@nestjs/terminus": "11.0.0",
-    "@nestjs/typeorm": "10.0.2",
+    "@prisma/adapter-pg": "7.5.0",
+    "@prisma/client": "7.5.0",
     "argon2": "0.41.1",
     "cookie-parser": "1.4.7",
     "dotenv": "16.4.7",
@@ -49,7 +54,7 @@
     "passport-jwt": "4.0.1",
     "passport-local": "1.0.0",
     "pg": "8.13.1",
-    "typeorm": "0.3.20"
+    "prisma": "7.5.0"
   },
   "devDependencies": {
     "@nestjs/cli": "10.4.9",

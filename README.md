@@ -1,19 +1,16 @@
-# Project template
+# project-template-back
 
-Заготовка для проекта. За основу взят nest.js.
+Backend-заготовка на **NestJS** + **Prisma** (PostgreSQL): auth (JWT в cookies), пользователи, OTP, почта, health, Swagger.
 
-## Подготовка
+## Быстрый старт
 
-Перед запуском проекта создать файл .env по аналогии с .example.env
+1. Скопируй `.example.env` в `.env` и заполни переменные.
+2. `npm install`
+3. `npm run prisma:migrate:dev` — применить схему БД.
+4. `npm run dev` — сервер с watch (порт из `PORT`, по умолчанию 3000).
 
-## Run tasks
+Сборка: `npm run build` · прод: `npm run prod`
 
-Команда для запуска:
+## Документация API
 
-```sh
-npm run start:dev
-```
-
-## Swagger
-
-Swagger находится по [ссылке](http://localhost:3000/swagger)
+[Swagger UI](http://localhost:3000/swagger) · JSON: `/swagger/json`

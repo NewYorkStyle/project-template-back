@@ -1,30 +1,26 @@
-import {User} from '../../users/entities/users.entity';
-import {E_PERMISSIONS} from '../contants';
-import {Permissions} from '../entities/permissions.entity';
-import {User_Permissions} from '../entities/user-premissions.entity';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository} from 'typeorm';
+
+import {PrismaService} from '../../../common/prisma/prisma.service';
+import {E_PERMISSIONS} from '../constants';
 
 @Injectable()
 export class PermissionsService {
-  constructor(
-    @InjectRepository(Permissions)
-    private readonly permissionsRepository: Repository<Permissions>,
-    @InjectRepository(User_Permissions)
-    private readonly userPermissionsRepository: Repository<User_Permissions>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async getUserPermissions(userId: string): Promise<Permissions['name'][]> {
-    const user = await this.userRepository.findOne({
-      relations: ['userPermissions', 'userPermissions.permission'],
+  async getUserPermissions(userId: string): Promise<string[]> {
+    const user = await this.prisma.user.findUnique({
       where: {id: userId},
+      include: {
+        userPermissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -38,13 +34,17 @@ export class PermissionsService {
     userId: string,
     permissionName: E_PERMISSIONS
   ): Promise<void> {
-    const user = await this.userRepository.findOne({where: {id: userId}});
+    // 1. Проверяем пользователя
+    const user = await this.prisma.user.findUnique({
+      where: {id: userId},
+    });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const permission = await this.permissionsRepository.findOne({
+    // 2. Получаем permission
+    const permission = await this.prisma.permission.findUnique({
       where: {name: permissionName},
     });
 
@@ -52,38 +52,61 @@ export class PermissionsService {
       throw new NotFoundException('Permission not found');
     }
 
-    const permissions = await this.getUserPermissions(userId);
-
-    if (permissions.includes(permissionName))
-      throw new BadRequestException('User already has permission');
-
-    const newPermission = this.userPermissionsRepository.create({
-      permissionId: permission.id,
-      userId,
+    // 3. Проверяем, есть ли уже связь
+    const existing = await this.prisma.userPermission.findUnique({
+      where: {
+        userId_permissionId: {
+          userId,
+          permissionId: permission.id,
+        },
+      },
     });
 
-    await this.userPermissionsRepository.save(newPermission);
+    if (existing) {
+      throw new BadRequestException('User already has permission');
+    }
+
+    // 4. Создаём связь
+    await this.prisma.userPermission.create({
+      data: {
+        userId,
+        permissionId: permission.id,
+      },
+    });
   }
 
   async removePermissionFromUser(
     userId: string,
     permissionName: E_PERMISSIONS
   ): Promise<void> {
-    const permission = await this.permissionsRepository.findOne({
+    const permission = await this.prisma.permission.findUnique({
       where: {name: permissionName},
     });
 
-    const userPermission = await this.userPermissionsRepository.findOne({
-      where: {permissionId: permission.id, userId},
+    if (!permission) {
+      throw new NotFoundException('Permission not found');
+    }
+
+    const existing = await this.prisma.userPermission.findUnique({
+      where: {
+        userId_permissionId: {
+          userId,
+          permissionId: permission.id,
+        },
+      },
     });
 
-    if (!userPermission) {
+    if (!existing) {
       throw new NotFoundException('Permission not found for this user');
     }
 
-    await this.userPermissionsRepository.delete({
-      permissionId: permission.id,
-      userId,
+    await this.prisma.userPermission.delete({
+      where: {
+        userId_permissionId: {
+          userId,
+          permissionId: permission.id,
+        },
+      },
     });
   }
 }

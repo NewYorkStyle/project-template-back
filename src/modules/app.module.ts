@@ -1,26 +1,21 @@
+import {Module} from '@nestjs/common';
+import {ScheduleModule} from '@nestjs/schedule';
+
+import {PrismaModule} from '../common/prisma/prisma.module';
+
 import {AuthModule} from './auth/auth.module';
 import {CommonModule} from './common/common.module';
 import {HealthModule} from './health/health.module';
 import {UsersModule} from './users/users.module';
-import {Module} from '@nestjs/common';
-import {TypeOrmModule} from '@nestjs/typeorm';
-import 'dotenv/config';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     HealthModule,
     CommonModule,
     AuthModule,
     UsersModule,
-    TypeOrmModule.forRoot({
-      autoLoadEntities: true,
-      database: process.env.DB_NAME,
-      host: process.env.DB_HOST,
-      password: process.env.DB_PASSWORD,
-      port: Number(process.env.DB_PORT),
-      type: 'postgres',
-      username: process.env.DB_USERNAME,
-    }),
+    PrismaModule,
   ],
 })
 export class AppModule {}
