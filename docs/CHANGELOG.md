@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.3.0...v1.3.1) (2026-03-22)
+
+### Bug Fixes
+
+* PROJECTTEMPLATE-54 Docker fix ([#13](https://github.com/NewYorkStyle/project-template-back/issues/13)) ([6786bce](https://github.com/NewYorkStyle/project-template-back/commit/6786bce946ffb3869a0298beb7684cfa07453ee0))
+
 ## [1.3.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.2.2...v1.3.0) (2026-03-22)
 
 ### Features
