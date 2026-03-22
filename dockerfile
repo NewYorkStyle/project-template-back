@@ -7,18 +7,19 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 
 RUN npm ci
 
 COPY src/ ./src/
 
-# Генерим Prisma клиент
+# Генерим Prisma client
 RUN npx prisma generate
 
 # Билдим Nest
 RUN npm run build
 
-# Оставляем только прод зависимости (prune не пересоздаёт node_modules — сохраняет prisma generate)
+# Удаляем dev-зависимости, НЕ ломая prisma client
 RUN npm prune --omit=dev
 
 
@@ -30,10 +31,11 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Важно: prisma тоже нужен!
+# Копируем всё нужное
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nodejs:nodejs /app/prisma.config.ts ./
 COPY --chown=nodejs:nodejs package*.json ./
 
 USER nodejs
