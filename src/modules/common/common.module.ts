@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 
-import {ParamsController} from './controllers/params.controller';
-import {ParamsService} from './services/params.service';
+import {ParamsController} from './controllers';
+import {ParamsService} from './services';
 
 @Module({
   controllers: [ParamsController],

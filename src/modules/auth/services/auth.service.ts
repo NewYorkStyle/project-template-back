@@ -6,9 +6,9 @@ import {
 import {JwtService} from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 
-import {CreateUserDto} from '../../users/dto';
+import {type TCreateUserDto} from '../../users/schemas';
 import {UsersService} from '../../users/services/users.service';
-import {AuthDto} from '../dto/auth.dto';
+import {signUpSchema, type TSignInDto} from '../schemas';
 import 'dotenv/config';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
 
   async signUp(
-    createUserDto: CreateUserDto
+    createUserDto: TCreateUserDto
   ): Promise<{accessToken: string; refreshToken: string; userId: string}> {
     const userExists = await this.usersService.findByUsername(
       createUserDto.username
@@ -37,9 +37,12 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
-    this.validateUsername(createUserDto.username);
-    this.validatePassword(createUserDto.password);
-    this.validateEmail(createUserDto.email);
+    const parsed = signUpSchema.safeParse(createUserDto);
+    if (!parsed.success) {
+      throw new BadRequestException(
+        parsed.error.issues.map((issue) => issue.message).join(' \n ')
+      );
+    }
 
     const hash = await this.hashData(createUserDto.password);
     const newUser = await this.usersService.create({
@@ -54,7 +57,7 @@ export class AuthService {
   }
 
   async signIn(
-    data: AuthDto
+    data: TSignInDto
   ): Promise<{accessToken: string; refreshToken: string; userId: string}> {
     const user = await this.usersService.findByUsername(data.username);
 
@@ -100,76 +103,12 @@ export class AuthService {
     return argon2.hash(data);
   }
 
-  validatePassword(password: string): void {
-    const errors: string[] = [];
-
-    if (!password) {
-      errors.push('Password is required');
-    }
-
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
-    }
-
-    if (!/[0-9]/.test(password)) {
-      errors.push('Password must contain at least one number');
-    }
-
-    if (!/(?=.*[a-z])/.test(password)) {
-      errors.push('Password must contain at least one lowercase');
-    }
-
-    if (!/(?=.*[A-Z])/.test(password)) {
-      errors.push('Password must contain at least one uppercase');
-    }
-
-    if (errors.length !== 0) {
-      throw new BadRequestException(errors.join(' \n '));
-    }
-  }
-
-  validateUsername(username: string): void {
-    const errors: string[] = [];
-
-    if (!username) {
-      errors.push('Username is required');
-    }
-
-    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-      errors.push(
-        'Username must contain only letters, numbers, symbols "_" and "-"'
-      );
-    }
-
-    if (username.length < 3 || username.length > 20) {
-      errors.push('Username must contain from 3 to 20 characters');
-    }
-
-    if (errors.length !== 0) {
-      throw new BadRequestException(errors.join(' \n '));
-    }
-  }
-
-  validateEmail(email: string): void {
-    const errors: string[] = [];
-
-    if (!email) {
-      errors.push('Email is required');
-    }
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-      errors.push('Wrong email');
-    }
-  }
-
   async updateRefreshToken(
     userId: string,
     refreshToken: string
   ): Promise<void> {
     const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.usersService.update(userId, {
-      refreshToken: hashedRefreshToken,
-    });
+    await this.usersService.setHashedRefreshToken(userId, hashedRefreshToken);
   }
 
   async getTokens(

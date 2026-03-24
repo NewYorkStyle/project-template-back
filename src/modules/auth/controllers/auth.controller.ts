@@ -1,11 +1,16 @@
 import {Body, Controller, Get, Post, Req, Res, UseGuards} from '@nestjs/common';
 import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {CookieOptions, Response} from 'express';
+import {ZodValidationPipe} from 'nestjs-zod';
 
 import {AccessTokenGuard, RefreshTokenGuard, TRequest} from '../../../common';
-import {CreateUserDto} from '../../users/dto';
-import {AuthDto} from '../dto/auth.dto';
-import {AuthService} from '../services/auth.service';
+import {
+  signInSchema,
+  signUpSchema,
+  type TSignInDto,
+  type TSignUpDto,
+} from '../schemas';
+import {AuthService} from '../services';
 
 const httpOnlyCookieConfig: CookieOptions = {
   httpOnly: true,
@@ -35,24 +40,18 @@ export class AuthController {
     description:
       'При успешной регистрации возвращает сообщение "User registred"',
     schema: {
-      example: 'User registred',
-      type: 'string',
+      $ref: '#/components/schemas/SignUpOkResponseDto',
     },
     status: 200,
   })
   @ApiBody({
     description: 'Данные пользователя',
     schema: {
-      example: {
-        email: 'email',
-        password: 'password',
-        username: 'username',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/SignUpDto',
     },
   })
   async signUp(
-    @Body() createUserDto: CreateUserDto,
+    @Body(new ZodValidationPipe(signUpSchema)) createUserDto: TSignUpDto,
     @Res({passthrough: true}) res: Response
   ): Promise<string> {
     const {accessToken, refreshToken, userId} =
@@ -75,24 +74,19 @@ export class AuthController {
     description:
       'При успешной аутентификации возвращает сообщение "User logged in"',
     schema: {
-      example: 'User logged in',
-      type: 'string',
+      $ref: '#/components/schemas/SignInOkResponseDto',
     },
     status: 200,
   })
   @ApiBody({
     description: 'Данные пользователя',
     schema: {
-      example: {
-        password: 'password',
-        username: 'username',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/SignInDto',
     },
   })
   @Post('signIn')
   async signIn(
-    @Body() data: AuthDto,
+    @Body(new ZodValidationPipe(signInSchema)) data: TSignInDto,
     @Res({passthrough: true}) res: Response
   ): Promise<string> {
     const {accessToken, refreshToken, userId} =
@@ -114,8 +108,7 @@ export class AuthController {
     description:
       'При успешной аутентификации возвращает сообщение "User logged out"',
     schema: {
-      example: 'User logged out',
-      type: 'string',
+      $ref: '#/components/schemas/LogoutOkResponseDto',
     },
     status: 200,
   })
@@ -144,8 +137,7 @@ export class AuthController {
     description:
       'При успешной аутентификации возвращает сообщение "Token refreshed"',
     schema: {
-      example: 'Token refreshed',
-      type: 'string',
+      $ref: '#/components/schemas/RefreshOkResponseDto',
     },
     status: 200,
   })
