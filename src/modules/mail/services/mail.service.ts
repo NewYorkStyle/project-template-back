@@ -1,8 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {MailerService} from '@nestjs-modules/mailer';
-
-import 'dotenv/config';
 import {User} from '@prisma/client';
+import 'dotenv/config';
 
 @Injectable()
 export class MailService {

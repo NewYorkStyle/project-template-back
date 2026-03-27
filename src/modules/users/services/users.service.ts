@@ -3,7 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {User} from '@prisma/client';
+import {Prisma, User} from '@prisma/client';
+import * as argon2 from 'argon2';
 
 import {PrismaService} from '../../../common/prisma/prisma.service';
 import {MailService} from '../../mail/services/mail.service';
@@ -11,7 +12,11 @@ import {E_OTP_PURPOSE} from '../../otp/constants';
 import {OtpService} from '../../otp/services/otp.service';
 import {E_PERMISSIONS} from '../../permissions/constants';
 import {PermissionsService} from '../../permissions/services/permissions.service';
-import {CreateUserDto, UpdateUserDto} from '../dto';
+import {
+  type TChangePasswordDto,
+  type TCreateUserDto,
+  type TUpdateUserDto,
+} from '../schemas';
 
 type TEmailChangeMetadata = {
   newEmail: string;
@@ -26,7 +31,7 @@ export class UsersService {
     private readonly permissionsService: PermissionsService
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: TCreateUserDto): Promise<User> {
     return this.prisma.user.create({
       data: {
         ...createUserDto,
@@ -60,13 +65,64 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: TUpdateUserDto): Promise<User> {
     await this.findById(id);
+
+    const data: Prisma.UserUpdateInput = {
+      updatedAt: new Date(),
+    };
+
+    if (updateUserDto.name !== undefined) {
+      data.name = updateUserDto.name;
+    }
+    if (updateUserDto.surname !== undefined) {
+      data.surname = updateUserDto.surname;
+    }
+    if (updateUserDto.patronymic !== undefined) {
+      data.patronymic = updateUserDto.patronymic;
+    }
 
     return this.prisma.user.update({
       where: {id},
+      data,
+    });
+  }
+
+  /**
+   * Только для auth-слоя: сохраняет уже захэшированный refresh token.
+   */
+  async setHashedRefreshToken(
+    userId: string,
+    hashedRefreshToken: string
+  ): Promise<void> {
+    await this.findById(userId);
+    await this.prisma.user.update({
+      where: {id: userId},
       data: {
-        ...updateUserDto,
+        refreshToken: hashedRefreshToken,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  async changePassword(userId: string, dto: TChangePasswordDto): Promise<void> {
+    const user = await this.findById(userId);
+
+    const passwordMatches = await argon2.verify(
+      user.password,
+      dto.currentPassword
+    );
+
+    if (!passwordMatches) {
+      throw new BadRequestException('Password is incorrect');
+    }
+
+    const passwordHash = await argon2.hash(dto.newPassword);
+
+    await this.prisma.user.update({
+      where: {id: userId},
+      data: {
+        password: passwordHash,
         updatedAt: new Date(),
       },
     });

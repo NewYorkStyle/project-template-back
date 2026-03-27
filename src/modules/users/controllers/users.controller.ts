@@ -12,11 +12,18 @@ import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {Permission} from '@prisma/client';
 import * as argon2 from 'argon2';
 import {Response} from 'express';
+import {ZodValidationPipe} from 'nestjs-zod';
 
 import {AccessTokenGuard, TRequest} from '../../../common';
-import {PermissionDto} from '../../permissions/dto/permission.dto';
 import {PermissionsService} from '../../permissions/services/permissions.service';
-import {DeleteUserDto, UpdateUserDto} from '../dto';
+import {
+  changePasswordSchema,
+  deleteUserSchema,
+  type TChangePasswordDto,
+  type TDeleteUserDto,
+  type TUpdateUserDto,
+  updateUserSchema,
+} from '../schemas';
 import {UsersService} from '../services/users.service';
 
 @ApiTags('users')
@@ -34,13 +41,7 @@ export class UsersController {
   @ApiResponse({
     description: 'Возвращает профиль юзера.',
     schema: {
-      example: {
-        email: 'string',
-        name: 'string',
-        patronymic: 'string',
-        surname: 'string',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/UserProfileDto',
     },
     status: 200,
   })
@@ -60,29 +61,21 @@ export class UsersController {
   @ApiResponse({
     description: 'Возвращает обновлённый профиль юзера.',
     schema: {
-      example: {
-        email: 'string',
-        name: 'string',
-        patronymic: 'string',
-        surname: 'string',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/UserUpdateResultDto',
     },
     status: 200,
   })
   @ApiBody({
     description: 'Поля для изменения',
     schema: {
-      example: {
-        name: 'string',
-        patronymic: 'string',
-        surname: 'string',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/UpdateUserDto',
     },
   })
   @Post('update')
-  update(@Req() req: TRequest, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Req() req: TRequest,
+    @Body(new ZodValidationPipe(updateUserSchema)) updateUserDto: TUpdateUserDto
+  ) {
     return this.usersService
       .update(req.cookies.userId, updateUserDto)
       .then((profile) => ({
@@ -93,30 +86,56 @@ export class UsersController {
   }
 
   @ApiOperation({
+    summary: 'Смена пароля',
+  })
+  @ApiResponse({
+    description: 'Пароль обновлён',
+    schema: {
+      $ref: '#/components/schemas/ChangePasswordOkResponseDto',
+    },
+    status: 200,
+  })
+  @ApiBody({
+    description: 'Текущий и новый пароль',
+    schema: {
+      $ref: '#/components/schemas/ChangePasswordDto',
+    },
+  })
+  @Post('changePassword')
+  async changePassword(
+    @Req() req: TRequest,
+    @Body(new ZodValidationPipe(changePasswordSchema))
+    changePasswordDto: TChangePasswordDto
+  ) {
+    await this.usersService.changePassword(
+      req.cookies.userId,
+      changePasswordDto
+    );
+
+    return 'Password changed';
+  }
+
+  @ApiOperation({
     summary: 'Удаление пользователя',
   })
   @ApiResponse({
     description: 'Удаляет юзера.',
     schema: {
-      example: 'User deleted',
-      type: 'string',
+      $ref: '#/components/schemas/DeleteUserOkResponseDto',
     },
     status: 200,
   })
   @ApiBody({
     description: 'Поля для подтверждения',
     schema: {
-      example: {
-        password: 'string',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/DeleteUserDto',
     },
   })
   @Post('delete')
   async remove(
     @Req() req: TRequest,
     @Res({passthrough: true}) res: Response,
-    @Body() deleteUserDto: DeleteUserDto
+    @Body(new ZodValidationPipe(deleteUserSchema)) deleteUserDto: TDeleteUserDto
   ) {
     const user = await this.usersService.findById(req.cookies.userId);
 
@@ -146,8 +165,7 @@ export class UsersController {
   @ApiResponse({
     description: 'Генерирует OTP и отправляет на почту',
     schema: {
-      example: 'OTP sent',
-      type: 'string',
+      $ref: '#/components/schemas/OtpSentOkResponseDto',
     },
     status: 200,
   })
@@ -164,17 +182,14 @@ export class UsersController {
   @ApiResponse({
     description: 'Проверяет полученный OTP',
     schema: {
-      example: 'OTP verified',
-      type: 'string',
+      $ref: '#/components/schemas/OtpVerifiedOkResponseDto',
     },
     status: 200,
   })
   @ApiBody({
+    description: 'OTP из письма для подтверждения email',
     schema: {
-      example: {
-        otp: 'string',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/OtpBodyDto',
     },
   })
   @Post('verifyEmail')
@@ -195,18 +210,14 @@ export class UsersController {
   @ApiResponse({
     description: 'Генерирует OTP для смены email и отправляет на новую почту',
     schema: {
-      example: 'OTP for email change sent',
-      type: 'string',
+      $ref: '#/components/schemas/EmailChangeRequestOkResponseDto',
     },
     status: 200,
   })
   @ApiBody({
     description: 'Новый email адрес',
     schema: {
-      example: {
-        newEmail: 'newemail@example.com',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/EmailChangeRequestBodyDto',
     },
   })
   @Post('emailChangeRequest')
@@ -229,18 +240,14 @@ export class UsersController {
   @ApiResponse({
     description: 'Проверяет OTP и изменяет email пользователя',
     schema: {
-      example: 'Email successfully changed',
-      type: 'string',
+      $ref: '#/components/schemas/EmailChangeOkResponseDto',
     },
     status: 200,
   })
   @ApiBody({
     description: 'OTP для подтверждения смены email',
     schema: {
-      example: {
-        otp: 'string',
-      },
-      type: 'object',
+      $ref: '#/components/schemas/OtpBodyDto',
     },
   })
   @Post('emailChange')
@@ -260,8 +267,10 @@ export class UsersController {
   })
   @ApiResponse({
     description: 'Возвращает список permissions текущего пользователя.',
+    schema: {
+      $ref: '#/components/schemas/PermissionNamesDto',
+    },
     status: 200,
-    type: [PermissionDto],
   })
   @Get('permissions')
   async getMyPermissions(@Req() req: TRequest): Promise<Permission['name'][]> {

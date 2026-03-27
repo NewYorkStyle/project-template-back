@@ -2,7 +2,7 @@ import {Controller, Get} from '@nestjs/common';
 import {ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 
 import {BASE_URL} from '../constants';
-import {ParamsService} from '../services/params.service';
+import {ParamsService} from '../services';
 
 @ApiTags('params')
 @Controller(`${BASE_URL}/params`)
@@ -19,8 +19,7 @@ export class ParamsController {
     description:
       'Возвращает параметры приложения в виде объекта, где ключом выступает название параметра.',
     schema: {
-      example: {param_name: 'param_value'},
-      type: 'object',
+      $ref: '#/components/schemas/AppParamsDto',
     },
     status: 200,
   })
