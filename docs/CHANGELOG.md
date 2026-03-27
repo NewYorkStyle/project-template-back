@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.3.2...v1.4.0) (2026-03-27)
+
+### Features
+
+* PROJECTTEMPLATE-58 Добавил zod схемы ([#15](https://github.com/NewYorkStyle/project-template-back/issues/15)) ([fce9388](https://github.com/NewYorkStyle/project-template-back/commit/fce9388dcd5ca07d6e2cb3ec117b933557da81fb))
+
 ## [1.3.2](https://github.com/NewYorkStyle/project-template-back/compare/v1.3.1...v1.3.2) (2026-03-22)
 
 ## [1.3.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.3.0...v1.3.1) (2026-03-22)
