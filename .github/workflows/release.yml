@@ -1,20 +1,18 @@
-name: Release and deploy back
+name: Release back
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
 
 permissions:
   contents: write
-  packages: write
   issues: write
   pull-requests: write
 
 jobs:
   release:
     runs-on: ubuntu-22.04
-    outputs:
-      version: ${{ steps.version.outputs.version }}
 
     steps:
       - uses: actions/checkout@v4
@@ -31,52 +29,4 @@ jobs:
       - name: Semantic release
         run: npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set version
-        id: version
-        run: |
-          VERSION=$(git describe --tags --abbrev=0 || echo "0.0.0")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-  docker:
-    runs-on: ubuntu-22.04
-    needs: release
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Build Docker image
-        run: |
-          IMAGE=ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          VERSION=${{ needs.release.outputs.version }}
-
-          docker build -t $IMAGE:$VERSION .
-          docker tag $IMAGE:$VERSION $IMAGE:latest
-
-      - name: Push Docker image
-        run: |
-          IMAGE=ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          VERSION=${{ needs.release.outputs.version }}
-
-          docker push $IMAGE:$VERSION
-          docker push $IMAGE:latest
-
-  deploy:
-    runs-on: ubuntu-22.04
-    needs: docker
-
-    steps:
-      - name: Deploy back
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /home/deployer/project-template-deploy
-            chmod +x deploy.sh 
-            ./deploy.sh backend
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
