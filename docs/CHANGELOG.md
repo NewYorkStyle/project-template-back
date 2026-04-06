@@ -1,3 +1,5 @@
+## [1.4.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.4.0...v1.4.1) (2026-04-06)
+
 ## [1.4.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.3.2...v1.4.0) (2026-03-27)
 
 ### Features
