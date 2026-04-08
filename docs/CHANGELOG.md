@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.4.3...v1.5.0) (2026-04-08)
+
+### Features
+
+* PROJECTTEMPLATE-63 Pnpm + ручки для e2e тестов ([#18](https://github.com/NewYorkStyle/project-template-back/issues/18)) ([3e5dc17](https://github.com/NewYorkStyle/project-template-back/commit/3e5dc17bc0b8d29a207f4189bf422f368a6b2e6e))
+
 ## [1.4.3](https://github.com/NewYorkStyle/project-template-back/compare/v1.4.2...v1.4.3) (2026-04-06)
 
 ## [1.4.2](https://github.com/NewYorkStyle/project-template-back/compare/v1.4.1...v1.4.2) (2026-04-06)
