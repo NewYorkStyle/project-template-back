@@ -2,6 +2,14 @@ import {signInSchema} from '../modules/auth/schemas/sign-in.schema';
 import {signUpSchema} from '../modules/auth/schemas/sign-up.schema';
 import {appParamsSchema} from '../modules/common/schemas/app-params.schema';
 import {healthCheckOkResponseSchema} from '../modules/health/schemas/health-check-ok-response.schema';
+import {
+  testCreateUserOkResponseSchema,
+  testCreateUserSchema,
+  testDeleteUserOkResponseSchema,
+  testGrantPermissionsOkResponseSchema,
+  testDeleteUserSchema,
+  testGrantPermissionsSchema,
+} from '../modules/test/schemas/test-api.schema';
 import {changePasswordSchema} from '../modules/users/schemas/change-password.schema';
 import {deleteUserSchema} from '../modules/users/schemas/delete-user.schema';
 import {emailChangeRequestBodySchema} from '../modules/users/schemas/email-change-request-body.schema';
@@ -50,3 +58,12 @@ registerSchema('SignUpDto', signUpSchema);
 registerSchema('UpdateUserDto', updateUserSchema);
 registerSchema('UserProfileDto', userProfileSchema);
 registerSchema('UserUpdateResultDto', userUpdateResultSchema);
+registerSchema('TestCreateUserDto', testCreateUserSchema);
+registerSchema('TestCreateUserOkResponseDto', testCreateUserOkResponseSchema);
+registerSchema('TestDeleteUserDto', testDeleteUserSchema);
+registerSchema('TestDeleteUserOkResponseDto', testDeleteUserOkResponseSchema);
+registerSchema('TestGrantPermissionsDto', testGrantPermissionsSchema);
+registerSchema(
+  'TestGrantPermissionsOkResponseDto',
+  testGrantPermissionsOkResponseSchema
+);

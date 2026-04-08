@@ -22,6 +22,8 @@ type TEmailChangeMetadata = {
   newEmail: string;
 };
 
+const isTest = process.env.NODE_ENV === 'test';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -172,6 +174,10 @@ export class UsersService {
       throw new BadRequestException('User already has permission');
     }
 
+    if (isTest) {
+      return;
+    }
+
     await this.mailService.sendOtp(
       user,
       otp,
@@ -217,6 +223,10 @@ export class UsersService {
       E_OTP_PURPOSE.EMAIL_CHANGE,
       {newEmail}
     );
+
+    if (isTest) {
+      return;
+    }
 
     await this.mailService.sendOtp(
       {

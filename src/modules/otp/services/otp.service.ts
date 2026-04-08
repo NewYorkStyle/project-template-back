@@ -7,10 +7,14 @@ import {
 import {PrismaService} from '../../../common/prisma/prisma.service';
 import {E_OTP_PURPOSE} from '../constants';
 
+import 'dotenv/config';
+
 type TOtpVerificationResult<TMetadata = unknown> = {
   valid: boolean;
   metadata?: TMetadata;
 };
+
+const isTest = process.env.NODE_ENV === 'test';
 
 @Injectable()
 export class OtpService {
@@ -21,7 +25,9 @@ export class OtpService {
     purpose: E_OTP_PURPOSE,
     metadata?: TMetadata
   ): Promise<string> {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = isTest
+      ? '123456'
+      : Math.floor(100000 + Math.random() * 900000).toString();
 
     await this.prisma.otp.create({
       data: {
