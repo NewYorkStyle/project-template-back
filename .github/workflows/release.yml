@@ -1,4 +1,4 @@
-name: Release back
+name: Release front
 
 on:
   push:
@@ -12,21 +12,23 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+      - uses: pnpm/action-setup@v4
 
-      - run: npm ci
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
 
       - name: Semantic release
-        run: npx semantic-release
+        run: pnpm run semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
