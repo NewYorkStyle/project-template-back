@@ -11,8 +11,6 @@ import {AppModule} from './modules/app.module';
 import 'dotenv/config';
 import './common/register-zod-schemas';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -21,8 +19,8 @@ async function bootstrap() {
     .setDescription('API для project template')
     .setVersion(process.env.npm_package_version)
     .addTag('project-template')
-    .addServer(isProd ? '/api' : '/')
     .build();
+
   const documentFactory = () => {
     const document = SwaggerModule.createDocument(app, config);
     const {components: zodComponents} = generateOpenApiComponents();

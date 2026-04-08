@@ -1,5 +1,4 @@
 import js from '@eslint/js';
-import typescript from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import * as importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-config-prettier';
@@ -44,7 +43,6 @@ export default tseslint.config(
       },
     },
     plugins: {
-      '@typescript-eslint': typescript,
       import: importPlugin,
       prettier: prettierPlugin,
     },
@@ -56,8 +54,6 @@ export default tseslint.config(
       },
     },
     rules: {
-      ...typescript.configs['recommended-requiring-type-checking'].rules,
-
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
