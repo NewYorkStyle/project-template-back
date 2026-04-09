@@ -1,4 +1,3 @@
-import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
 import * as importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-config-prettier';
@@ -28,7 +27,7 @@ export default tseslint.config(
    * Основной конфиг
    */
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    extends: [...tseslint.configs.recommended],
     files: ['**/*.ts', '**/*.js'],
     languageOptions: {
       parser: tsParser,
