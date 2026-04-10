@@ -1,3 +1,9 @@
+## [1.5.5](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.4...v1.5.5) (2026-04-10)
+
+### Bug Fixes
+
+* PROJECTTEMPLATE-63 Fix tsx problem ([18bb92f](https://github.com/NewYorkStyle/project-template-back/commit/18bb92fd105f9d170fded1f90f59ad2313ed57a1))
+
 ## [1.5.4](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.3...v1.5.4) (2026-04-10)
 
 ### Bug Fixes
