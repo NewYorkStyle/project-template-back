@@ -31,7 +31,7 @@ return this.prisma.user.findUnique({
 
 ## Сиды
 
-- **Конфигурация:** команда запуска задана в `prisma.config.ts` в `migrations.seed` (`tsx ./prisma/seed/index.ts`). Отдельного `prisma.seed` в `package.json` нет — источник правды один.
+- **Конфигурация:** команда запуска задана в `prisma.config.ts` в `migrations.seed` (`pnpm exec tsx ./prisma/seed/index.ts`). Отдельного `prisma.seed` в `package.json` нет — источник правды один.
 - **Точка входа:** `prisma/seed/index.ts` — загружает `dotenv`, проверяет `DATABASE_URL`, создаёт `PrismaClient` с тем же адаптером `@prisma/adapter-pg`, что и приложение, вызывает функции сидов и в конце `disconnect`.
 - **Запуск вручную:** `pnpm prisma db seed` (или `npx prisma db seed`).
 - **Вместе с обнулением БД:** `pnpm db:reset` (`prisma migrate reset`) после миграций выполняет сид автоматически.
