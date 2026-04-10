@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-import {E_PERMISSIONS} from '../../permissions/constants';
+import {E_PERMISSIONS} from '../../../../shared/constants';
 
 /** Только для e2e: создание пользователя (login → username в БД). */
 export const testCreateUserSchema = z

@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import {E_PERMISSIONS} from '../../../../shared/constants';
 import {PrismaService} from '../../../common/prisma/prisma.service';
-import {E_PERMISSIONS} from '../constants';
 
 @Injectable()
 export class PermissionsService {

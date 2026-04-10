@@ -8,7 +8,7 @@
 ### Разделение тяжёлых сервисов
 
 - Выносить подзадачи в другие сервисы (`OtpService`, `MailService`, `PermissionsService`) и импортировать модули.
-- Константы перечислений в `constants/`.
+- Перечисления, общие для сидов, Prisma и нескольких модулей (например имена permissions), держи в `shared/constants/`. Локальные для модуля — в `src/modules/<feature>/constants/`.
 
 ---
 

@@ -14,7 +14,7 @@
 ## Роли и доступы
 
 - Не RBAC-ролями, а **записями в БД**: `permissions` + `user_permissions`.
-- Имена в коде: enum `E_PERMISSIONS` в `src/modules/permissions/contants/index.ts` (например `EMAIL_VERIFIED`).
+- Имена в коде: enum `E_PERMISSIONS` в `shared/constants/permissions.ts` (реэкспорт из `shared/constants`), например `EMAIL_VERIFIED`.
 - Получение списка прав: `PermissionsService.getUserPermissions` — `GET /users/permissions`.
 
 ## Пример сервиса (фрагмент)

@@ -1,6 +1,6 @@
 import {type PrismaClient} from '@prisma/client';
 
-import {E_PERMISSIONS} from '../../src/modules/permissions/constants';
+import {E_PERMISSIONS} from '../../shared/constants';
 
 export async function seedPermissions(prisma: PrismaClient) {
   const permissions = [

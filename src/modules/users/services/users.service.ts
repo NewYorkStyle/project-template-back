@@ -6,11 +6,11 @@ import {
 import {Prisma, User} from '@prisma/client';
 import * as argon2 from 'argon2';
 
+import {E_PERMISSIONS} from '../../../../shared/constants';
 import {PrismaService} from '../../../common/prisma/prisma.service';
 import {MailService} from '../../mail/services/mail.service';
 import {E_OTP_PURPOSE} from '../../otp/constants';
 import {OtpService} from '../../otp/services/otp.service';
-import {E_PERMISSIONS} from '../../permissions/constants';
 import {PermissionsService} from '../../permissions/services/permissions.service';
 import {
   type TChangePasswordDto,

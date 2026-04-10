@@ -10,6 +10,7 @@
 | Корневой модуль      | `src/modules/app.module.ts`                  | Сборка feature-модулей                                                       |
 | Feature-модули       | `src/modules/<name>/`                        | Изолированная область (auth, users, common, health, …)                       |
 | Общая инфраструктура | `src/common/`                                | Guards, типы запроса, **глобальный** `PrismaModule`                          |
+| Общие константы      | `shared/constants/`                          | Перечисления, которые шарят сиды и код (например `E_PERMISSIONS`)            |
 | Prisma               | `prisma/schema.prisma`, `prisma/migrations/` | Схема БД и миграции                                                          |
 | Конфиг Prisma CLI    | `prisma.config.ts`                           | Путь к миграциям и `DATABASE_URL`                                            |
 

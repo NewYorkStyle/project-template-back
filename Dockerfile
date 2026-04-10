@@ -10,6 +10,7 @@ COPY tsconfig*.json ./
 COPY nest-cli.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY shared ./shared
 
 RUN pnpm install --frozen-lockfile
 
@@ -40,6 +41,7 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nodejs:nodejs /app/prisma.config.ts ./
+COPY --from=builder --chown=nodejs:nodejs /app/shared ./shared
 COPY --chown=nodejs:nodejs package.json ./
 
 USER nodejs
