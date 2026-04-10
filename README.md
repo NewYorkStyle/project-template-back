@@ -5,11 +5,11 @@ Backend-заготовка на **NestJS** + **Prisma** (PostgreSQL): auth (JWT 
 ## Быстрый старт
 
 1. Скопируй `.example.env` в `.env` и заполни переменные.
-2. `npm install`
-3. `npm run prisma:migrate:dev` — применить схему БД.
-4. `npm run dev` — сервер с watch (порт из `PORT`, по умолчанию 3000).
+2. `pnpm install`
+3. `pnpm run prisma:migrate:dev` — применить схему БД.
+4. `pnpm run dev` — сервер с watch (порт из `PORT`, по умолчанию 3000).
 
-Сборка: `npm run build` · прод: `npm run prod`
+Сборка: `pnpm run build` · прод: `pnpm run prod`
 
 ## Документация API
 
