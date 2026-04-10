@@ -1,3 +1,9 @@
+## [1.5.3](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.2...v1.5.3) (2026-04-10)
+
+### Bug Fixes
+
+* PROJECTTEMPLATE-63 Добавил сиды и фикс eslint ([#19](https://github.com/NewYorkStyle/project-template-back/issues/19)) ([5c10b69](https://github.com/NewYorkStyle/project-template-back/commit/5c10b69c4141f3702193d5cc210056ae81cc929c))
+
 ## [1.5.2](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.1...v1.5.2) (2026-04-08)
 
 ## [1.5.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.0...v1.5.1) (2026-04-08)
