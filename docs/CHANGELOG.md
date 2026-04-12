@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.6...v1.6.0) (2026-04-12)
+
+### Features
+
+* PROJECTTEMPLATE-68 Изменение логики userId ([#20](https://github.com/NewYorkStyle/project-template-back/issues/20)) ([e910e44](https://github.com/NewYorkStyle/project-template-back/commit/e910e44c102f5f909203d294800fbc4da3356a8b))
+
 ## [1.5.6](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.5...v1.5.6) (2026-04-10)
 
 ## [1.5.5](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.4...v1.5.5) (2026-04-10)
