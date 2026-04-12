@@ -16,7 +16,7 @@ import type {
 export class TestService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createUser(dto: TTestCreateUserDto): Promise<void> {
+  async createUser(dto: TTestCreateUserDto): Promise<{userId: string}> {
     const existingByEmail = await this.prisma.user.findUnique({
       where: {email: dto.email},
     });
@@ -30,7 +30,7 @@ export class TestService {
 
     const passwordHash = await argon2.hash(dto.password);
 
-    await this.prisma.user.create({
+    const created = await this.prisma.user.create({
       data: {
         email: dto.email,
         username: dto.login,
@@ -43,6 +43,8 @@ export class TestService {
         updatedAt: new Date(),
       },
     });
+
+    return {userId: created.id};
   }
 
   async grantPermissions(dto: TTestGrantPermissionsDto): Promise<void> {
@@ -86,7 +88,7 @@ export class TestService {
 
   async deleteUser(dto: TTestDeleteUserDto): Promise<void> {
     const result = await this.prisma.user.deleteMany({
-      where: {email: dto.email},
+      where: {id: dto.userId},
     });
 
     if (result.count === 0) {

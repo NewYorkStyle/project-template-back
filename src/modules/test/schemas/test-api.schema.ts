@@ -53,9 +53,9 @@ export type TTestGrantPermissionsDto = z.infer<
 
 export const testDeleteUserSchema = z
   .object({
-    email: z.string().openapi({
-      description: 'Email пользователя для удаления',
-      example: 'e2e@example.com',
+    userId: z.uuid().openapi({
+      description: 'Идентификатор пользователя для удаления (UUID)',
+      example: '550e8400-e29b-41d4-a716-446655440000',
     }),
   })
   .openapi('TestDeleteUserDto');
@@ -63,11 +63,17 @@ export const testDeleteUserSchema = z
 export type TTestDeleteUserDto = z.infer<typeof testDeleteUserSchema>;
 
 export const testCreateUserOkResponseSchema = z
-  .string()
-  .openapi('TestCreateUserOkResponseDto', {
-    description: 'Пользователь создан',
-    example: 'User created',
-  });
+  .object({
+    userId: z.uuid().openapi({
+      description: 'Идентификатор созданного пользователя (UUID)',
+      example: '550e8400-e29b-41d4-a716-446655440000',
+    }),
+  })
+  .openapi('TestCreateUserOkResponseDto');
+
+export type TTestCreateUserOkResponseDto = z.infer<
+  typeof testCreateUserOkResponseSchema
+>;
 
 export const testGrantPermissionsOkResponseSchema = z
   .string()

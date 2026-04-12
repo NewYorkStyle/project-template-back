@@ -3,10 +3,16 @@ import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {CookieOptions, Response} from 'express';
 import {ZodValidationPipe} from 'nestjs-zod';
 
-import {AccessTokenGuard, RefreshTokenGuard, TRequest} from '../../../common';
+import {
+  AccessTokenGuard,
+  getJwtUserId,
+  RefreshTokenGuard,
+  TRequest,
+} from '../../../common';
 import {
   signInSchema,
   signUpSchema,
+  type TAuthSignOkResponseDto,
   type TSignInDto,
   type TSignUpDto,
 } from '../schemas';
@@ -33,14 +39,14 @@ export class AuthController {
   @Post('signUp')
   @ApiOperation({
     description:
-      'Создаёт нового пользователя и отправляет в httpOnly cookie токены аутентификации, id юзера.',
+      'Создаёт нового пользователя, ставит httpOnly cookie с токенами; идентификатор — только в теле JSON { userId }.',
     summary: 'Регистрация пользователя',
   })
   @ApiResponse({
     description:
-      'При успешной регистрации возвращает сообщение "User registred"',
+      'При успешной регистрации в теле JSON: { userId }; токены в cookies.',
     schema: {
-      $ref: '#/components/schemas/SignUpOkResponseDto',
+      $ref: '#/components/schemas/AuthSignOkResponseDto',
     },
     status: 200,
   })
@@ -53,28 +59,27 @@ export class AuthController {
   async signUp(
     @Body(new ZodValidationPipe(signUpSchema)) createUserDto: TSignUpDto,
     @Res({passthrough: true}) res: Response
-  ): Promise<string> {
+  ): Promise<TAuthSignOkResponseDto> {
     const {accessToken, refreshToken, userId} =
       await this.authService.signUp(createUserDto);
 
     res.cookie('refreshToken', refreshToken, httpOnlyCookieConfig);
     res.cookie('accessToken', accessToken, httpOnlyCookieConfig);
-    res.cookie('userId', userId, httpOnlyCookieConfig);
     res.cookie('isUserLoggedIn', true, commonCookieConfig);
 
-    return 'User registred';
+    return {userId};
   }
 
   @ApiOperation({
     description:
-      'Проверяет данные пользователя и отправляет в httpOnly cookie токены аутентификации, id юзера.',
+      'Проверяет данные пользователя, ставит httpOnly cookie с токенами; идентификатор — только в теле JSON { userId }.',
     summary: 'Вход пользователя в систему.',
   })
   @ApiResponse({
     description:
-      'При успешной аутентификации возвращает сообщение "User logged in"',
+      'При успешной аутентификации в теле JSON: { userId }; токены в cookies.',
     schema: {
-      $ref: '#/components/schemas/SignInOkResponseDto',
+      $ref: '#/components/schemas/AuthSignOkResponseDto',
     },
     status: 200,
   })
@@ -88,16 +93,15 @@ export class AuthController {
   async signIn(
     @Body(new ZodValidationPipe(signInSchema)) data: TSignInDto,
     @Res({passthrough: true}) res: Response
-  ): Promise<string> {
+  ): Promise<TAuthSignOkResponseDto> {
     const {accessToken, refreshToken, userId} =
       await this.authService.signIn(data);
 
     res.cookie('refreshToken', refreshToken, httpOnlyCookieConfig);
     res.cookie('accessToken', accessToken, httpOnlyCookieConfig);
-    res.cookie('userId', userId, httpOnlyCookieConfig);
     res.cookie('isUserLoggedIn', true, commonCookieConfig);
 
-    return 'User logged in';
+    return {userId};
   }
 
   @ApiOperation({
@@ -118,11 +122,10 @@ export class AuthController {
     @Req() req: TRequest,
     @Res({passthrough: true}) res: Response
   ): Promise<string> {
-    await this.authService.logout(req.cookies.userId);
+    await this.authService.logout(getJwtUserId(req));
 
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
-    res.clearCookie('userId');
     res.clearCookie('isUserLoggedIn');
 
     return 'User logged out';
@@ -147,7 +150,7 @@ export class AuthController {
     @Req() req: TRequest,
     @Res({passthrough: true}) res: Response
   ): Promise<string> {
-    const userId = req.cookies.userId;
+    const userId = getJwtUserId(req);
     const refreshToken = req.cookies.refreshToken;
     const {accessToken, refreshToken: newRefreshToken} =
       await this.authService.refreshTokens(userId, refreshToken);

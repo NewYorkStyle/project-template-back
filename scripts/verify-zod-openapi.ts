@@ -8,6 +8,7 @@ import {generateOpenApiComponents} from '../src/common/zod-openapi';
 
 const REQUIRED_SCHEMA_NAMES = [
   'AppParamsDto',
+  'AuthSignOkResponseDto',
   'ChangePasswordDto',
   'ChangePasswordOkResponseDto',
   'DeleteUserDto',
@@ -23,9 +24,7 @@ const REQUIRED_SCHEMA_NAMES = [
   'PermissionNamesDto',
   'RefreshOkResponseDto',
   'SignInDto',
-  'SignInOkResponseDto',
   'SignUpDto',
-  'SignUpOkResponseDto',
   'TestCreateUserDto',
   'TestCreateUserOkResponseDto',
   'TestDeleteUserDto',

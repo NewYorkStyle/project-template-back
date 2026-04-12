@@ -13,7 +13,7 @@
 ## Формат запросов/ответов
 
 - JSON body для POST; ответы — строки вроде `'User registred'`, объекты профиля (без пароля), массив имён permissions.
-- Аутентификация: после логина токены в **httpOnly cookies** (`accessToken`, `refreshToken`, `userId`, `isUserLoggedIn`).
+- Аутентификация: после логина токены в **httpOnly cookies** (`accessToken`, `refreshToken`, `isUserLoggedIn`); идентификатор пользователя — только в теле ответа при `signUp` / `signIn` (`{ userId }`), для защищённых маршрутов — из JWT (`sub` в payload), не из cookies.
 
 ## Ошибки
 

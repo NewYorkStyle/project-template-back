@@ -35,7 +35,7 @@
   status: 200,
   description: 'Успех',
   schema: {
-    $ref: '#/components/schemas/SignUpOkResponseDto',
+    $ref: '#/components/schemas/AuthSignOkResponseDto',
   },
 })
 ```
@@ -65,23 +65,24 @@
 
 ```ts
 // src/modules/auth/controllers/auth.controller.ts (идея)
+// TAuthSignOkResponseDto — из auth-sign-ok-response.schema.ts
 @Post('signIn')
 @ApiBody({
   schema: {$ref: '#/components/schemas/SignInDto'},
 })
 @ApiResponse({
   status: 200,
-  schema: {$ref: '#/components/schemas/SignInOkResponseDto'},
+  schema: {$ref: '#/components/schemas/AuthSignOkResponseDto'},
 })
 async signIn(
   @Body(new ZodValidationPipe(signInSchema)) data: TSignInDto,
   @Res({passthrough: true}) res: Response
-): Promise<string> {
+): Promise<TAuthSignOkResponseDto> {
   const {accessToken, refreshToken, userId} =
     await this.authService.signIn(data);
   res.cookie('refreshToken', refreshToken, httpOnlyCookieConfig);
   res.cookie('accessToken', accessToken, httpOnlyCookieConfig);
-  return 'User logged in';
+  return {userId};
 }
 ```
 

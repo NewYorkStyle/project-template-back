@@ -1,5 +1,12 @@
 import {type Request} from 'express';
 
-export type TRequest = Omit<Request, 'cookies'> & {
+/** Payload JWT access/refresh после `validate` в стратегиях Passport. */
+export type TJwtAuthUser = {
+  sub: string;
+  username: string;
+};
+
+export type TRequest = Omit<Request, 'cookies' | 'user'> & {
   cookies: Record<string, string>;
+  user?: TJwtAuthUser;
 };

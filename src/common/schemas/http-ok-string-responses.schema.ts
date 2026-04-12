@@ -2,20 +2,6 @@ import {z} from 'zod';
 
 /** Только для OpenAPI: успешные ответы-строки без дублирования inline-схем */
 
-export const signUpOkResponseSchema = z
-  .string()
-  .openapi('SignUpOkResponseDto', {
-    description: 'Successful user registration message',
-    example: 'User registred',
-  });
-
-export const signInOkResponseSchema = z
-  .string()
-  .openapi('SignInOkResponseDto', {
-    description: 'Successful sign in message',
-    example: 'User logged in',
-  });
-
 export const logoutOkResponseSchema = z
   .string()
   .openapi('LogoutOkResponseDto', {

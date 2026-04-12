@@ -20,6 +20,7 @@ import {
   testDeleteUserSchema,
   testGrantPermissionsSchema,
   type TTestCreateUserDto,
+  type TTestCreateUserOkResponseDto,
   type TTestDeleteUserDto,
   type TTestGrantPermissionsDto,
 } from '../schemas/test-api.schema';
@@ -45,9 +46,8 @@ export class TestController {
   @Post('create-user')
   async createUser(
     @Body(new ZodValidationPipe(testCreateUserSchema)) dto: TTestCreateUserDto
-  ): Promise<string> {
-    await this.testService.createUser(dto);
-    return 'User created';
+  ): Promise<TTestCreateUserOkResponseDto> {
+    return this.testService.createUser(dto);
   }
 
   @ApiOperation({summary: '[E2E only] Выдать permissions пользователю'})
@@ -69,9 +69,9 @@ export class TestController {
     return 'Permissions granted';
   }
 
-  @ApiOperation({summary: '[E2E only] Удалить пользователя по email'})
+  @ApiOperation({summary: '[E2E only] Удалить пользователя по userId'})
   @ApiBody({
-    description: 'Email пользователя',
+    description: 'Идентификатор пользователя (UUID)',
     schema: {$ref: '#/components/schemas/TestDeleteUserDto'},
   })
   @ApiResponse({
