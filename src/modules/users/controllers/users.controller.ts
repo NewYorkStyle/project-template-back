@@ -14,7 +14,7 @@ import * as argon2 from 'argon2';
 import {Response} from 'express';
 import {ZodValidationPipe} from 'nestjs-zod';
 
-import {AccessTokenGuard, TRequest} from '../../../common';
+import {AccessTokenGuard, getJwtUserId, TRequest} from '../../../common';
 import {PermissionsService} from '../../permissions/services/permissions.service';
 import {
   changePasswordSchema,
@@ -47,7 +47,7 @@ export class UsersController {
   })
   @Get('getProfile')
   async findById(@Req() req: TRequest) {
-    return this.usersService.findById(req.cookies.userId).then((profile) => ({
+    return this.usersService.findById(getJwtUserId(req)).then((profile) => ({
       email: profile.email,
       name: profile.name,
       patronymic: profile.patronymic,
@@ -77,7 +77,7 @@ export class UsersController {
     @Body(new ZodValidationPipe(updateUserSchema)) updateUserDto: TUpdateUserDto
   ) {
     return this.usersService
-      .update(req.cookies.userId, updateUserDto)
+      .update(getJwtUserId(req), updateUserDto)
       .then((profile) => ({
         name: profile.name,
         patronymic: profile.patronymic,
@@ -108,7 +108,7 @@ export class UsersController {
     changePasswordDto: TChangePasswordDto
   ) {
     await this.usersService.changePassword(
-      req.cookies.userId,
+      getJwtUserId(req),
       changePasswordDto
     );
 
@@ -137,7 +137,7 @@ export class UsersController {
     @Res({passthrough: true}) res: Response,
     @Body(new ZodValidationPipe(deleteUserSchema)) deleteUserDto: TDeleteUserDto
   ) {
-    const user = await this.usersService.findById(req.cookies.userId);
+    const user = await this.usersService.findById(getJwtUserId(req));
 
     if (!user) throw new BadRequestException('User does not exist');
 
@@ -149,11 +149,10 @@ export class UsersController {
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
 
-    await this.usersService.remove(req.cookies.userId);
+    await this.usersService.remove(getJwtUserId(req));
 
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
-    res.clearCookie('userId');
     res.clearCookie('isUserLoggedIn');
 
     return 'User deleted';
@@ -171,7 +170,7 @@ export class UsersController {
   })
   @Get('requestEmailVerification')
   async requestEmailVerification(@Req() req: TRequest) {
-    await this.usersService.requestEmailVerification(req.cookies.userId);
+    await this.usersService.requestEmailVerification(getJwtUserId(req));
 
     return 'OTP sent';
   }
@@ -195,7 +194,7 @@ export class UsersController {
   @Post('verifyEmail')
   async verifyEmail(@Req() req: TRequest, @Body('otp') otp: string) {
     const verified = await this.usersService.verifyEmail(
-      req.cookies.userId,
+      getJwtUserId(req),
       otp
     );
 
@@ -229,7 +228,7 @@ export class UsersController {
       throw new BadRequestException('New email is required');
     }
 
-    await this.usersService.emailChangeRequest(req.cookies.userId, newEmail);
+    await this.usersService.emailChangeRequest(getJwtUserId(req), newEmail);
 
     return 'OTP for email change sent';
   }
@@ -252,10 +251,7 @@ export class UsersController {
   })
   @Post('emailChange')
   async emailChange(@Req() req: TRequest, @Body('otp') otp: string) {
-    const changed = await this.usersService.emailChange(
-      req.cookies.userId,
-      otp
-    );
+    const changed = await this.usersService.emailChange(getJwtUserId(req), otp);
 
     if (!changed) throw new BadRequestException('OTP is incorrect or expired');
 
@@ -274,6 +270,6 @@ export class UsersController {
   })
   @Get('permissions')
   async getMyPermissions(@Req() req: TRequest): Promise<Permission['name'][]> {
-    return this.permissionsService.getUserPermissions(req.cookies.userId);
+    return this.permissionsService.getUserPermissions(getJwtUserId(req));
   }
 }

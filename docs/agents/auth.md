@@ -4,6 +4,7 @@
 
 - **JWT** через `@nestjs/jwt` и `passport-jwt`.
 - Токены передаются в **cookies**, не в `Authorization: Bearer`.
+- Идентификатор пользователя **не хранится в cookies**: при регистрации/входе возвращается в JSON (`{ userId }`); в запросах с guard пользователь определяется по **JWT** (`sub` в payload → `req.user` после Passport).
 - Access и refresh секреты: `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` (см. `AuthService.getTokens`).
 
 ## Guards

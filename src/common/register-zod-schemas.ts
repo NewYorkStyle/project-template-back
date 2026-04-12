@@ -1,3 +1,4 @@
+import {authSignOkResponseSchema} from '../modules/auth/schemas/auth-sign-ok-response.schema';
 import {signInSchema} from '../modules/auth/schemas/sign-in.schema';
 import {signUpSchema} from '../modules/auth/schemas/sign-up.schema';
 import {appParamsSchema} from '../modules/common/schemas/app-params.schema';
@@ -28,8 +29,6 @@ import {
   otpSentOkResponseSchema,
   otpVerifiedOkResponseSchema,
   refreshOkResponseSchema,
-  signInOkResponseSchema,
-  signUpOkResponseSchema,
 } from './schemas/http-ok-string-responses.schema';
 import {registerSchema} from './zod-openapi';
 
@@ -51,8 +50,7 @@ registerSchema('OtpSentOkResponseDto', otpSentOkResponseSchema);
 registerSchema('OtpVerifiedOkResponseDto', otpVerifiedOkResponseSchema);
 registerSchema('PermissionNamesDto', permissionNamesSchema);
 registerSchema('RefreshOkResponseDto', refreshOkResponseSchema);
-registerSchema('SignInOkResponseDto', signInOkResponseSchema);
-registerSchema('SignUpOkResponseDto', signUpOkResponseSchema);
+registerSchema('AuthSignOkResponseDto', authSignOkResponseSchema);
 registerSchema('SignInDto', signInSchema);
 registerSchema('SignUpDto', signUpSchema);
 registerSchema('UpdateUserDto', updateUserSchema);
