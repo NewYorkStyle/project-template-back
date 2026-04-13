@@ -1,35 +1,46 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import * as argon2 from 'argon2';
 
 import {PrismaService} from '../../../common/prisma/prisma.service';
+import {PermissionsService} from '../../permissions/services/permissions.service';
+import {UsersService} from '../../users/services/users.service';
 import type {
   TTestCreateUserDto,
   TTestGrantPermissionsDto,
   TTestDeleteUserDto,
 } from '../schemas/test-api.schema';
 
+/**
+ * Test-сервис для e2e-сценариев.
+ * Делегирует бизнес-логику существующим сервисам, не дублируя её.
+ */
 @Injectable()
 export class TestService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly permissionsService: PermissionsService,
+    private readonly prisma: PrismaService
+  ) {}
 
+  /**
+   * Создать пользователя.
+   * Использует UsersService для проверки уникальности и AuthService для хеширования пароля.
+   */
   async createUser(dto: TTestCreateUserDto): Promise<{userId: string}> {
-    const existingByEmail = await this.prisma.user.findUnique({
-      where: {email: dto.email},
-    });
-    const existingByLogin = await this.prisma.user.findUnique({
-      where: {username: dto.login},
-    });
+    // Проверяем уникальность через UsersService
+    const existingByEmail = await this.usersService.findByEmail(dto.email);
+    const existingByUsername = await this.usersService.findByUsername(
+      dto.login
+    );
 
-    if (existingByEmail || existingByLogin) {
+    if (existingByEmail || existingByUsername) {
       throw new BadRequestException('User already exists');
     }
 
+    // Хешируем пароль
     const passwordHash = await argon2.hash(dto.password);
 
+    // Создаём запись напрямую, т.к. TCreateUserDto не поддерживает name/surname/patronymic
     const created = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -47,52 +58,26 @@ export class TestService {
     return {userId: created.id};
   }
 
+  /**
+   * Выдать permissions пользователю через PermissionsService.grantPermissions.
+   */
   async grantPermissions(dto: TTestGrantPermissionsDto): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: {email: dto.email},
-    });
+    const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new BadRequestException('User not found');
     }
 
-    if (dto.permissions.length === 0) {
-      return;
-    }
-
-    const uniqueNames = [...new Set(dto.permissions)];
-
-    const found = await this.prisma.permission.findMany({
-      where: {name: {in: uniqueNames}},
-      select: {id: true, name: true},
-    });
-
-    const foundNames = new Set(found.map((p) => p.name));
-    const invalid = uniqueNames.filter((n) => !foundNames.has(n));
-
-    if (invalid.length > 0) {
-      throw new BadRequestException({
-        message: 'Invalid permissions',
-        invalid,
-      });
-    }
-
-    await this.prisma.userPermission.createMany({
-      data: found.map((p) => ({
-        userId: user.id,
-        permissionId: p.id,
-      })),
-      skipDuplicates: true,
-    });
+    await this.permissionsService.addPermissionsToUser(
+      user.id,
+      dto.permissions
+    );
   }
 
+  /**
+   * Удалить пользователя через UsersService.remove.
+   */
   async deleteUser(dto: TTestDeleteUserDto): Promise<void> {
-    const result = await this.prisma.user.deleteMany({
-      where: {id: dto.userId},
-    });
-
-    if (result.count === 0) {
-      throw new NotFoundException('User not found');
-    }
+    await this.usersService.remove(dto.userId);
   }
 }

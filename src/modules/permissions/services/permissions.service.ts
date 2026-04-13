@@ -30,83 +30,48 @@ export class PermissionsService {
     return user.userPermissions.map((up) => up.permission.name);
   }
 
-  async addPermissionToUser(
+  /**
+   * Массовая выдача permissions пользователю.
+   * Валидирует все permissions перед созданием связей, пропускает дубликаты.
+   */
+  async addPermissionsToUser(
     userId: string,
-    permissionName: E_PERMISSIONS
+    permissionNames: E_PERMISSIONS[]
   ): Promise<void> {
-    // 1. Проверяем пользователя
-    const user = await this.prisma.user.findUnique({
-      where: {id: userId},
-    });
+    if (permissionNames.length === 0) {
+      return;
+    }
 
+    // Проверяем пользователя
+    const user = await this.prisma.user.findUnique({where: {id: userId}});
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // 2. Получаем permission
-    const permission = await this.prisma.permission.findUnique({
-      where: {name: permissionName},
+    // Валидируем все permissions
+    const uniqueNames = [...new Set(permissionNames)];
+    const found = await this.prisma.permission.findMany({
+      where: {name: {in: uniqueNames}},
+      select: {id: true, name: true},
     });
 
-    if (!permission) {
-      throw new NotFoundException('Permission not found');
+    const foundNames = new Set(found.map((p) => p.name));
+    const invalid = uniqueNames.filter((n) => !foundNames.has(n));
+
+    if (invalid.length > 0) {
+      throw new BadRequestException({
+        message: 'Invalid permissions',
+        invalid,
+      });
     }
 
-    // 3. Проверяем, есть ли уже связь
-    const existing = await this.prisma.userPermission.findUnique({
-      where: {
-        userId_permissionId: {
-          userId,
-          permissionId: permission.id,
-        },
-      },
-    });
-
-    if (existing) {
-      throw new BadRequestException('User already has permission');
-    }
-
-    // 4. Создаём связь
-    await this.prisma.userPermission.create({
-      data: {
+    // Создаём связи с пропуском дубликатов
+    await this.prisma.userPermission.createMany({
+      data: found.map((p) => ({
         userId,
-        permissionId: permission.id,
-      },
-    });
-  }
-
-  async removePermissionFromUser(
-    userId: string,
-    permissionName: E_PERMISSIONS
-  ): Promise<void> {
-    const permission = await this.prisma.permission.findUnique({
-      where: {name: permissionName},
-    });
-
-    if (!permission) {
-      throw new NotFoundException('Permission not found');
-    }
-
-    const existing = await this.prisma.userPermission.findUnique({
-      where: {
-        userId_permissionId: {
-          userId,
-          permissionId: permission.id,
-        },
-      },
-    });
-
-    if (!existing) {
-      throw new NotFoundException('Permission not found for this user');
-    }
-
-    await this.prisma.userPermission.delete({
-      where: {
-        userId_permissionId: {
-          userId,
-          permissionId: permission.id,
-        },
-      },
+        permissionId: p.id,
+      })),
+      skipDuplicates: true,
     });
   }
 }
