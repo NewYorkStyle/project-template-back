@@ -193,10 +193,9 @@ export class UsersService {
     );
 
     if (verified.valid) {
-      await this.permissionsService.addPermissionToUser(
-        userId,
-        E_PERMISSIONS.EMAIL_VERIFIED
-      );
+      await this.permissionsService.addPermissionsToUser(userId, [
+        E_PERMISSIONS.EMAIL_VERIFIED,
+      ]);
 
       return true;
     }
