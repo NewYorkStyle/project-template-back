@@ -154,6 +154,13 @@ export class UsersService {
     });
   }
 
+  /**
+   * Идемпотентное удаление: не выбрасывает ошибку, если записей нет (в отличие от remove).
+   */
+  async deleteMany(where: Prisma.UserWhereInput): Promise<void> {
+    await this.prisma.user.deleteMany({where});
+  }
+
   async requestEmailVerification(id: string): Promise<void> {
     const otp = await this.otpService.generateOtp(
       id,

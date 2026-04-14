@@ -6,7 +6,8 @@
 - Swagger: `GET /swagger`, JSON: `/swagger/json`.
 - Примеры префиксов:
   - `POST /auth/signUp`, `POST /auth/signIn`, `GET /auth/logout`, `GET /auth/refresh`
-  - `GET /users/getProfile`, `POST /users/update`, … (все под `AccessTokenGuard` на классе)
+  - `GET /users/me`, `POST /users/update`, … (все под `AccessTokenGuard` на классе)
+  - `GET /users/me/tours`, `POST /users/me/tours/seen`
   - `GET /common/params/getParams`
   - `GET /health`
 
@@ -38,7 +39,7 @@
 ### DTO vs «сущность»
 
 - **ORM-модели:** только типы из `@prisma/client` (`User`, `Permission`, …). Не путай с DTO.
-- **В ответ API:** не отдавай полный `User` с `password` / `refreshToken`. Проект уже мапит вручную (например `getProfile` возвращает только ФИО и email).
+- **В ответ API:** не отдавай полный `User` с `password` / `refreshToken`. Проект уже мапит вручную (например `GET /users/me` возвращает только ФИО и email).
 
 ### Маппинг
 

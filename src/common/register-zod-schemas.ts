@@ -11,6 +11,12 @@ import {
   testDeleteUserSchema,
   testGrantPermissionsSchema,
 } from '../modules/test/schemas/test-api.schema';
+import {
+  markTourSeenOkResponseSchema,
+  markTourSeenSchema,
+  tourResponseSchema,
+  userToursListSchema,
+} from '../modules/user-tours/schemas';
 import {changePasswordSchema} from '../modules/users/schemas/change-password.schema';
 import {deleteUserSchema} from '../modules/users/schemas/delete-user.schema';
 import {emailChangeRequestBodySchema} from '../modules/users/schemas/email-change-request-body.schema';
@@ -65,3 +71,7 @@ registerSchema(
   'TestGrantPermissionsOkResponseDto',
   testGrantPermissionsOkResponseSchema
 );
+registerSchema('MarkTourSeenDto', markTourSeenSchema);
+registerSchema('MarkTourSeenOkResponseDto', markTourSeenOkResponseSchema);
+registerSchema('TourResponseDto', tourResponseSchema);
+registerSchema('UserToursListDto', userToursListSchema);

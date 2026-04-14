@@ -32,4 +32,4 @@
 
 - Файлы: `kebab-case` для некоторых guard-файлов (`accessToken.guard.ts`), остальное — `feature.type.ts` (`users.service.ts`).
 - Классы: `PascalCase` (`UsersService`).
-- Маршруты в проекте: **действие в camelCase** (`signUp`, `getProfile`, `getParams`), не REST-only `/users/:id`.
+- Маршруты в проекте смешанные: есть action-style (`signUp`, `getParams`) и REST-style (`users/me`, `users/me/tours`).

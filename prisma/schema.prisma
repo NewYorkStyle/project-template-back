@@ -67,6 +67,33 @@ model User {
 
   otp             Otp[]
   userPermissions UserPermission[]
+  userTours       UserTour[]
 
   @@map("users")
+}
+
+model Tour {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique @db.VarChar
+  name      String   @db.VarChar
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  userTours UserTour[]
+
+  @@map("tours")
+}
+
+model UserTour {
+  id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String   @db.Uuid
+  tourId  String   @db.Uuid
+  seenAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tour    Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tourId])
+  @@index([userId])
+  @@map("user_tours")
 }

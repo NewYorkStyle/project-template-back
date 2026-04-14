@@ -7,6 +7,7 @@ import {AuthModule} from './auth/auth.module';
 import {CommonModule} from './common/common.module';
 import {HealthModule} from './health/health.module';
 import {TestModule} from './test/test.module';
+import {UserToursModule} from './user-tours/user-tours.module';
 import {UsersModule} from './users/users.module';
 
 @Module({
@@ -17,6 +18,7 @@ import {UsersModule} from './users/users.module';
     AuthModule,
     UsersModule,
     TestModule,
+    UserToursModule,
     PrismaModule,
   ],
 })

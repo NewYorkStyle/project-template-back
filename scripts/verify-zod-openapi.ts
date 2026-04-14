@@ -18,6 +18,8 @@ const REQUIRED_SCHEMA_NAMES = [
   'EmailChangeRequestOkResponseDto',
   'HealthCheckOkResponseDto',
   'LogoutOkResponseDto',
+  'MarkTourSeenDto',
+  'MarkTourSeenOkResponseDto',
   'OtpBodyDto',
   'OtpSentOkResponseDto',
   'OtpVerifiedOkResponseDto',
@@ -31,8 +33,10 @@ const REQUIRED_SCHEMA_NAMES = [
   'TestDeleteUserOkResponseDto',
   'TestGrantPermissionsDto',
   'TestGrantPermissionsOkResponseDto',
+  'TourResponseDto',
   'UpdateUserDto',
   'UserProfileDto',
+  'UserToursListDto',
   'UserUpdateResultDto',
 ] as const;
 
