@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.6.1...v1.7.0) (2026-04-14)
+
+### Features
+
+* PROJECTTEMPLATE-71 Добавил базу + контролер для туров ([#22](https://github.com/NewYorkStyle/project-template-back/issues/22)) ([e8537fe](https://github.com/NewYorkStyle/project-template-back/commit/e8537feb357eda902476c811732618eb9627d23b))
+
 ## [1.6.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.6.0...v1.6.1) (2026-04-13)
 
 ## [1.6.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.5.6...v1.6.0) (2026-04-12)
