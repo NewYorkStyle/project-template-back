@@ -35,8 +35,8 @@ return this.prisma.user.findUnique({
 - **Точка входа:** `prisma/seed/index.ts` — загружает `dotenv`, проверяет `DATABASE_URL`, создаёт `PrismaClient` с тем же адаптером `@prisma/adapter-pg`, что и приложение, вызывает функции сидов и в конце `disconnect`.
 - **Запуск вручную:** `pnpm prisma db seed` (или `npx prisma db seed`).
 - **Вместе с обнулением БД:** `pnpm db:reset` (`prisma migrate reset`) после миграций выполняет сид автоматически.
-- **Структура кода:** логику выноси в отдельные файлы рядом с `index.ts`, например `prisma/seed/permissions.seed.ts`, и экспортируй async-функции вида `(prisma: PrismaClient) => Promise<void>`. В `index.ts` только оркестрация и порядок вызовов.
-- **Идемпотентность:** для справочных данных используй `upsert` (как в `seedPermissions`), чтобы повторный запуск не ломал данные и обновлял описания при необходимости.
+- **Структура кода:** логику выноси в отдельные файлы рядом с `index.ts`, например `prisma/seed/permissions.seed.ts`, `prisma/seed/tours.seed.ts`, и экспортируй async-функции вида `(prisma: PrismaClient) => Promise<void>`. В `index.ts` только оркестрация и порядок вызовов.
+- **Идемпотентность:** для справочных данных используй `upsert` (как в `seedPermissions` и `seedTours`), чтобы повторный запуск не ломал данные и обновлял значения при необходимости.
 - **Согласованность с кодом:** строковые ключи сущностей (например имена permissions) держи в синхроне с константами приложения — для прав используется `E_PERMISSIONS` из `shared/constants` (файл `shared/constants/permissions.ts`).
 
 ## Антипаттерны

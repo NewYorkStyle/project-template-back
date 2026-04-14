@@ -75,9 +75,9 @@ export class TestService {
   }
 
   /**
-   * Удалить пользователя через UsersService.remove.
+   * Удалить пользователя через UsersService.deleteMany (idempotent, без P2025 при отсутствии записи).
    */
   async deleteUser(dto: TTestDeleteUserDto): Promise<void> {
-    await this.usersService.remove(dto.userId);
+    await this.usersService.deleteMany({id: dto.userId});
   }
 }

@@ -45,7 +45,7 @@ export class UsersController {
     },
     status: 200,
   })
-  @Get('getProfile')
+  @Get('me')
   async findById(@Req() req: TRequest) {
     return this.usersService.findById(getJwtUserId(req)).then((profile) => ({
       email: profile.email,

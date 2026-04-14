@@ -3,6 +3,7 @@ import {PrismaPg} from '@prisma/adapter-pg';
 import {PrismaClient} from '@prisma/client';
 
 import {seedPermissions} from './permissions.seed';
+import {seedTours} from './tours.seed';
 
 if (!process.env.DATABASE_URL) {
   console.error('❌ DATABASE_URL is not defined');
@@ -19,6 +20,7 @@ async function main() {
   console.log('Seeding started...');
 
   await seedPermissions(prisma);
+  await seedTours(prisma);
 
   console.log('Seeding finished');
 }
