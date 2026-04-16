@@ -5,7 +5,7 @@
 - Глобального префикса API (`/api/v1`) **нет**.
 - Swagger: `GET /swagger`, JSON: `/swagger/json`.
 - Примеры префиксов:
-  - `POST /auth/signUp`, `POST /auth/signIn`, `GET /auth/logout`, `GET /auth/refresh`
+  - `POST /auth/signUp`, `POST /auth/signIn`, `GET /auth/logout`, `POST /auth/refresh`
   - `GET /users/me`, `POST /users/update`, … (все под `AccessTokenGuard` на классе)
   - `GET /users/me/tours`, `POST /users/me/tours/seen`
   - `GET /common/params/getParams`
@@ -13,7 +13,7 @@
 
 ## Формат запросов/ответов
 
-- JSON body для POST; ответы — строки вроде `'User registred'`, объекты профиля (без пароля), массив имён permissions.
+- JSON body для POST; ответы — при `signUp` / `signIn` объект `{ userId }`, для `logout` / `refresh` — строки (`'User logged out'`, `'Token refreshed'`), иначе объекты профиля (без пароля), массив имён permissions.
 - Аутентификация: после логина токены в **httpOnly cookies** (`accessToken`, `refreshToken`, `isUserLoggedIn`); идентификатор пользователя — только в теле ответа при `signUp` / `signIn` (`{ userId }`), для защищённых маршрутов — из JWT (`sub` в payload), не из cookies.
 
 ## Ошибки
