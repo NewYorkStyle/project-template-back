@@ -145,7 +145,7 @@ export class AuthController {
     status: 200,
   })
   @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
+  @Post('refresh')
   async refreshTokens(
     @Req() req: TRequest,
     @Res({passthrough: true}) res: Response
