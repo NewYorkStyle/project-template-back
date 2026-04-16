@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.7.0...v1.8.0) (2026-04-16)
+
+### Features
+
+* PROJECTTEMPLATE-75 Рефакторинг авторизации ([#23](https://github.com/NewYorkStyle/project-template-back/issues/23)) ([e811fd1](https://github.com/NewYorkStyle/project-template-back/commit/e811fd1270e44ef469a6056b582eeba888068e05))
+
 ## [1.7.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.6.1...v1.7.0) (2026-04-14)
 
 ### Features
