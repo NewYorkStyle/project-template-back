@@ -1,7 +1,9 @@
 import {Module} from '@nestjs/common';
-import {ScheduleModule} from '@nestjs/schedule';
+import {ThrottlerModule} from '@nestjs/throttler';
 
 import {PrismaModule} from '../common/prisma/prisma.module';
+import {RedisModule} from '../common/redis/redis.module';
+import {createThrottlerModuleOptions} from '../common/throttler/throttler-options';
 
 import {AuthModule} from './auth/auth.module';
 import {CommonModule} from './common/common.module';
@@ -12,7 +14,7 @@ import {UsersModule} from './users/users.module';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot(createThrottlerModuleOptions()),
     HealthModule,
     CommonModule,
     AuthModule,
@@ -20,6 +22,7 @@ import {UsersModule} from './users/users.module';
     TestModule,
     UserToursModule,
     PrismaModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

@@ -3,7 +3,7 @@
 ## Модели
 
 - Единственный источник правды: `prisma/schema.prisma`.
-- Модели: `User`, `Otp`, `Param`, `Permission`, `UserPermission` (см. `@@map` для имён таблиц).
+- Модели: `User`, `Param`, `Permission`, `UserPermission`, `Tour`, `UserTour` (см. `@@map` для имён таблиц). OTP хранится в **Redis**, не в Prisma.
 
 ## Запросы
 

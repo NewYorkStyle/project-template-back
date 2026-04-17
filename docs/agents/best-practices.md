@@ -16,13 +16,13 @@
 
 ### Логирование
 
-- В `OtpCleanupService` используется `Logger` из `@nestjs/common` — это эталон для фоновых задач.
+- Для фоновых задач и периодики используй `Logger` из `@nestjs/common` вместо `console`.
 - В `UsersService.clearRefreshToken` встречается `console.log` — для нового кода используй `Logger` вместо `console`.
 
 ### Ошибки
 
 - Для сбоев бизнес-логики — `HttpException` наследники.
-- В `OtpService` при ошибке парсинга `metadata` бросается голый `Error` — лучше `BadRequestException` для единообразия API.
+- В `OtpService` при невалидном JSON в Redis используется `BadRequestException` — придерживайся такого же стиля для ошибок разбора данных.
 
 ---
 
@@ -97,7 +97,7 @@
 | Prisma + `adapter-pg`                            | `src/common/prisma/prisma.service.ts`                                                                                   |
 | Конфиг `prisma.config.ts`                        | Отдельно от `schema.prisma`                                                                                             |
 | `CommonModule` регистрирует свой `PrismaService` | Дублирование с глобальным модулем                                                                                       |
-| `@Cron` в `OtpCleanupService`                    | Требуется `ScheduleModule.forRoot()` в корневом модуле — **проверь наличие**, иначе cron не работает                    |
+| Глобальный `RedisModule`                         | `REDIS_URL` в окружении; OTP и health-check используют `RedisService`                                                   |
 | Без глобального `ValidationPipe`                 | Тела запросов: Zod + `ZodValidationPipe` там, где нужно; сервисы — доп. правила                                         |
 | OpenAPI: Zod + Swagger hybrid                    | `zod-openapi.ts`, `register-zod-schemas.ts`, merge в `main.ts`, в контроллерах только `$ref`; проверка `verify:openapi` |
 

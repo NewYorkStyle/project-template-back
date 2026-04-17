@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import {NestFactory} from '@nestjs/core';
 import {
   DocumentBuilder,
@@ -8,7 +10,6 @@ import * as cookieParser from 'cookie-parser';
 
 import {generateOpenApiComponents} from './common/zod-openapi';
 import {AppModule} from './modules/app.module';
-import 'dotenv/config';
 import './common/register-zod-schemas';
 
 async function bootstrap() {
