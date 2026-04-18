@@ -1,3 +1,9 @@
+## [1.9.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.9.0...v1.9.1) (2026-04-18)
+
+### Bug Fixes
+
+* PROJECTTEMPLATE-76 Build fix ([477b3ed](https://github.com/NewYorkStyle/project-template-back/commit/477b3ed792726e71ea5b2a5ab11acab520830749))
+
 ## [1.9.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.8.0...v1.9.0) (2026-04-18)
 
 ### Features
