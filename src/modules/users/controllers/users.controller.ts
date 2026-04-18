@@ -9,12 +9,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+import {Throttle, ThrottlerGuard} from '@nestjs/throttler';
 import {Permission} from '@prisma/client';
 import * as argon2 from 'argon2';
 import {Response} from 'express';
 import {ZodValidationPipe} from 'nestjs-zod';
 
 import {AccessTokenGuard, getJwtUserId, TRequest} from '../../../common';
+import {otpRouteThrottle} from '../../../common/throttler/throttler-options';
 import {PermissionsService} from '../../permissions/services/permissions.service';
 import {
   changePasswordSchema,
@@ -28,7 +30,7 @@ import {UsersService} from '../services/users.service';
 
 @ApiTags('users')
 @Controller('users')
-@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard, ThrottlerGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -169,6 +171,7 @@ export class UsersController {
     status: 200,
   })
   @Get('requestEmailVerification')
+  @Throttle(otpRouteThrottle)
   async requestEmailVerification(@Req() req: TRequest) {
     await this.usersService.requestEmailVerification(getJwtUserId(req));
 
@@ -192,6 +195,7 @@ export class UsersController {
     },
   })
   @Post('verifyEmail')
+  @Throttle(otpRouteThrottle)
   async verifyEmail(@Req() req: TRequest, @Body('otp') otp: string) {
     const verified = await this.usersService.verifyEmail(
       getJwtUserId(req),
@@ -220,6 +224,7 @@ export class UsersController {
     },
   })
   @Post('emailChangeRequest')
+  @Throttle(otpRouteThrottle)
   async emailChangeRequest(
     @Req() req: TRequest,
     @Body('newEmail') newEmail: string
@@ -250,6 +255,7 @@ export class UsersController {
     },
   })
   @Post('emailChange')
+  @Throttle(otpRouteThrottle)
   async emailChange(@Req() req: TRequest, @Body('otp') otp: string) {
     const changed = await this.usersService.emailChange(getJwtUserId(req), otp);
 

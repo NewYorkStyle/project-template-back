@@ -1,10 +1,12 @@
+import {timingSafeEqual} from 'crypto';
+
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 
-import {PrismaService} from '../../../common/prisma/prisma.service';
+import {RedisService} from '../../../common/redis/redis.service';
 import {E_OTP_PURPOSE} from '../constants';
 
 import 'dotenv/config';
@@ -14,11 +16,22 @@ type TOtpVerificationResult<TMetadata = unknown> = {
   metadata?: TMetadata;
 };
 
+const OTP_TTL_SECONDS = 300;
+
 const isTest = process.env.NODE_ENV === 'test';
+
+type TOtpPayload = {
+  code: string;
+  metadata?: unknown;
+};
 
 @Injectable()
 export class OtpService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly redisService: RedisService) {}
+
+  private otpKey(userId: string, purpose: E_OTP_PURPOSE): string {
+    return `otp:${userId}:${purpose}`;
+  }
 
   async generateOtp<TMetadata = unknown>(
     userId: string,
@@ -29,14 +42,18 @@ export class OtpService {
       ? '123456'
       : Math.floor(100000 + Math.random() * 900000).toString();
 
-    await this.prisma.otp.create({
-      data: {
-        userId,
-        purpose,
-        otp,
-        metadata: metadata ? JSON.stringify(metadata) : null,
-      },
-    });
+    const key = this.otpKey(userId, purpose);
+    const payload: TOtpPayload = {code: otp};
+    if (metadata !== undefined) {
+      payload.metadata = metadata;
+    }
+
+    await this.redisService.redis.set(
+      key,
+      JSON.stringify(payload),
+      'EX',
+      OTP_TTL_SECONDS
+    );
 
     return otp;
   }
@@ -46,46 +63,41 @@ export class OtpService {
     otp: string,
     purpose: E_OTP_PURPOSE
   ): Promise<TOtpVerificationResult<TMetadata>> {
-    const verification = await this.prisma.otp.findFirst({
-      where: {userId, otp, purpose},
-      orderBy: {createdAt: 'desc'},
-    });
+    const key = this.otpKey(userId, purpose);
+    const raw = await this.redisService.redis.get(key);
 
-    if (!verification) {
+    if (!raw) {
       throw new NotFoundException('OTP not found');
     }
 
-    if (verification.expiresAt < new Date()) {
-      throw new UnauthorizedException('OTP has expired');
+    let parsed: TOtpPayload;
+
+    try {
+      parsed = JSON.parse(raw) as TOtpPayload;
+    } catch {
+      throw new BadRequestException('OTP payload is invalid');
     }
 
-    let parsedMetadata: unknown = undefined;
-
-    if (verification.metadata) {
-      try {
-        parsedMetadata = JSON.parse(verification.metadata);
-      } catch {
-        throw new Error('Failed to parse OTP metadata');
-      }
+    if (typeof parsed.code !== 'string') {
+      throw new BadRequestException('OTP payload is invalid');
     }
 
-    await this.prisma.otp.delete({
-      where: {otpId: verification.otpId},
-    });
+    const encoder = new TextEncoder();
+    const expected = encoder.encode(parsed.code);
+    const actual = encoder.encode(otp);
+
+    if (
+      expected.length !== actual.length ||
+      !timingSafeEqual(expected, actual)
+    ) {
+      throw new NotFoundException('OTP not found');
+    }
+
+    await this.redisService.redis.del(key);
 
     return {
       valid: true,
-      metadata: parsedMetadata as TMetadata,
+      metadata: parsed.metadata as TMetadata,
     };
-  }
-
-  async cleanupExpiredOtps(): Promise<void> {
-    await this.prisma.otp.deleteMany({
-      where: {
-        expiresAt: {
-          lt: new Date(),
-        },
-      },
-    });
   }
 }

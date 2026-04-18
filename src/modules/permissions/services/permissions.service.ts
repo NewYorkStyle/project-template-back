@@ -5,13 +5,27 @@ import {
 } from '@nestjs/common';
 
 import {E_PERMISSIONS} from '../../../../shared/constants';
+import {
+  USER_PERMISSIONS_CACHE_TTL_SEC,
+  userPermissionsCacheKey,
+} from '../../../common/cache/cache-keys';
+import {RedisJsonCacheService} from '../../../common/cache/redis-json-cache.service';
 import {PrismaService} from '../../../common/prisma/prisma.service';
 
 @Injectable()
 export class PermissionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisJsonCache: RedisJsonCacheService
+  ) {}
 
   async getUserPermissions(userId: string): Promise<string[]> {
+    const cacheKey = userPermissionsCacheKey(userId);
+    const cached = await this.redisJsonCache.getJson<string[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const user = await this.prisma.user.findUnique({
       where: {id: userId},
       include: {
@@ -27,7 +41,15 @@ export class PermissionsService {
       throw new NotFoundException('User not found');
     }
 
-    return user.userPermissions.map((up) => up.permission.name);
+    const names = user.userPermissions.map((up) => up.permission.name);
+
+    await this.redisJsonCache.setJson(
+      cacheKey,
+      names,
+      USER_PERMISSIONS_CACHE_TTL_SEC
+    );
+
+    return names;
   }
 
   /**
@@ -73,5 +95,7 @@ export class PermissionsService {
       })),
       skipDuplicates: true,
     });
+
+    await this.redisJsonCache.del(userPermissionsCacheKey(userId));
   }
 }

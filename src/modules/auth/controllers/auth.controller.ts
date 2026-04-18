@@ -1,5 +1,6 @@
 import {Body, Controller, Get, Post, Req, Res, UseGuards} from '@nestjs/common';
 import {ApiBody, ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+import {Throttle, ThrottlerGuard} from '@nestjs/throttler';
 import {CookieOptions, Response} from 'express';
 import {ZodValidationPipe} from 'nestjs-zod';
 
@@ -9,6 +10,7 @@ import {
   RefreshTokenGuard,
   TRequest,
 } from '../../../common';
+import {authRouteThrottle} from '../../../common/throttler/throttler-options';
 import {
   signInSchema,
   signUpSchema,
@@ -33,10 +35,12 @@ const commonCookieConfig: CookieOptions = {
 
 @ApiTags('auth')
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signUp')
+  @Throttle(authRouteThrottle)
   @ApiOperation({
     description:
       'Создаёт нового пользователя, ставит httpOnly cookie с токенами; идентификатор — только в теле JSON { userId }.',
@@ -90,6 +94,7 @@ export class AuthController {
     },
   })
   @Post('signIn')
+  @Throttle(authRouteThrottle)
   async signIn(
     @Body(new ZodValidationPipe(signInSchema)) data: TSignInDto,
     @Res({passthrough: true}) res: Response
@@ -146,6 +151,7 @@ export class AuthController {
   })
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
+  @Throttle(authRouteThrottle)
   async refreshTokens(
     @Req() req: TRequest,
     @Res({passthrough: true}) res: Response
