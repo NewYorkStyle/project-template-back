@@ -21,6 +21,7 @@ export const createThrottlerModuleOptions = () => {
   }
 
   return {
+    skipIf: () => process.env.NODE_ENV === 'test',
     storage: new ThrottlerStorageRedisService(redisUrl),
     throttlers: [
       {
