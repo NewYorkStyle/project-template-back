@@ -1,3 +1,9 @@
+## [1.9.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.8.0...v1.9.0) (2026-04-18)
+
+### Features
+
+* PROJECTTEMPLATE-76 Добавил redis ([#24](https://github.com/NewYorkStyle/project-template-back/issues/24)) ([4f69379](https://github.com/NewYorkStyle/project-template-back/commit/4f69379eb825bc399e44edfa18acdbe10dd211c6))
+
 ## [1.8.0](https://github.com/NewYorkStyle/project-template-back/compare/v1.7.0...v1.8.0) (2026-04-16)
 
 ### Features
