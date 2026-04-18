@@ -1,3 +1,9 @@
+## [1.9.2](https://github.com/NewYorkStyle/project-template-back/compare/v1.9.1...v1.9.2) (2026-04-18)
+
+### Bug Fixes
+
+* PROJECTTEMPLATE-76 Отключил rate limit для тестов ([768421f](https://github.com/NewYorkStyle/project-template-back/commit/768421f1676ab34a32a611ff774fa080046e9e6e))
+
 ## [1.9.1](https://github.com/NewYorkStyle/project-template-back/compare/v1.9.0...v1.9.1) (2026-04-18)
 
 ### Bug Fixes
